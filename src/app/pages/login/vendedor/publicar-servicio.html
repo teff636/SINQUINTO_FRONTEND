@@ -1,0 +1,29 @@
+
+<div class="container">
+
+  <h2>Publicar Servicio</h2>
+
+  <input 
+    type="text" 
+    placeholder="Nombre del servicio" 
+    [(ngModel)]="nombre"
+  >
+
+  <textarea 
+    placeholder="Descripción del servicio"
+    [(ngModel)]="descripcion">
+  </textarea>
+
+  <input 
+    type="number" 
+    placeholder="Precio" 
+    [(ngModel)]="precio"
+  >
+
+  <button type="button" (click)="publicar()">
+    Publicar
+  </button>
+
+  <p style="color:red">{{ mensaje }}</p>
+
+</div>

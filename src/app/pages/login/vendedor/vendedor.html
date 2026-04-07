@@ -1,9 +1,19 @@
-<div class="container">
-  <h1>Panel Vendedor 🛠</h1>
+<h2>Bienvenido vendedor 👋</h2>
 
-  <p *ngIf="usuario">
-    Hola {{ usuario.nombre }} 
-  </p>
+<!-- BOTÓN + -->
+<button class="btn-add" (click)="abrirFormulario()">
+  ➕
+</button>
 
-  <button (click)="logout()">Cerrar sesión</button>
+<!-- FORMULARIO SOLO SI SE ACTIVA -->
+<div *ngIf="mostrarFormulario" class="modal">
+
+  <div class="modal-content">
+
+    <button class="close" (click)="cerrarFormulario()">✖</button>
+
+    <app-publicar-servicio></app-publicar-servicio>
+
+  </div>
+
 </div>

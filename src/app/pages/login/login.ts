@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // 👈 IMPORTANTE
+import { CommonModule } from '@angular/common'; 
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router';
-import { RegisterUsuarioComponent } from './register-usuario/register-usuario';
-
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, RegisterUsuarioComponent],
+  imports: [FormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -19,12 +17,18 @@ export class LoginComponent {
   password: string = '';
   mensaje: string = '';
 
-  mostrarRegistro: boolean = false; // 🔥 CONTROL DEL MODAL
+  irRegistro() {
+  this.router.navigate(['/register-usuario']);
+  }
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit() {
+    this.router.navigate(['/login']);
+  }
 
   iniciarSesion() {
     const data = {
@@ -33,28 +37,24 @@ export class LoginComponent {
     };
 
     this.authService.login(data).subscribe({
-      next: (res) => {
-        this.mensaje = 'Bienvenido ' + res.nombre;
+  next: (res) => {
 
-        if (res.rol === 'Cliente') {
-          this.router.navigate(['/cliente']);
-        } else {
-          this.router.navigate(['/vendedor']);
-        }
-      },
-      error: () => {
-        this.mensaje = 'Correo o contraseña incorrectos';
-      }
-    });
+    console.log(res); // 👈 para verificar
+
+    // 🔥 GUARDA PRIMERO
+    localStorage.setItem('usuario', JSON.stringify(res));
+
+    // 🔥 LUEGO NAVEGA
+    if (res.rol === 'Cliente') {
+      this.router.navigate(['/cliente']);
+    } else {
+      this.router.navigate(['/vendedor']);
+    }
+
+  },
+  error: () => {
+    this.mensaje = 'Correo o contraseña incorrectos';
   }
-
-  // 🔥 ABRE EL CUADRITO
-  abrirRegistro() {
-    this.mostrarRegistro = true;
-  }
-
-  // 🔥 CIERRA EL CUADRITO
-  cerrarRegistro() {
-    this.mostrarRegistro = false;
+});
   }
 }

@@ -5,8 +5,7 @@
     <h1>Bienvenido a ServiClick!</h1>
     <p>¿No tienes una cuenta?</p>
 
-    <!-- 🔥 BOTÓN CORREGIDO -->
-    <button class="btn-outline" (click)="abrirRegistro()">
+    <button class="btn-outline" (click)="irRegistro()">
       Registrarse
     </button>
   </div>
@@ -29,11 +28,6 @@
         [(ngModel)]="password"
       >
 
-      <!-- 🔥 TAMBIÉN ESTE BOTÓN -->
-      <button class="btn-outline" (click)="abrirRegistro()">
-        Registrarse
-      </button>
-
       <button (click)="iniciarSesion()">
         Iniciar Sesión
       </button>
@@ -44,9 +38,3 @@
   </div>
 
 </div>
-
-<!-- 🔥 MODAL (FUERA DEL CONTAINER, MUY IMPORTANTE) -->
-<app-register-usuario 
-  *ngIf="mostrarRegistro"
-  (cerrar)="cerrarRegistro()">
-</app-register-usuario>

@@ -1,6 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -24,7 +25,10 @@ export class RegisterUsuarioComponent {
   mensaje = '';
   rol: string = 'Cliente';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   registrar() {
     console.log("CLICK REGISTRAR FUNCIONA");
@@ -46,7 +50,7 @@ export class RegisterUsuarioComponent {
   this.authService.registerCliente(data).subscribe({
     next: () => {
 
-      console.log("REGISTRO EXITOSO"); // 👈 PRUEBA
+      console.log("REGISTRO EXITOSO"); 
 
       this.mostrarExito = true;
 
@@ -61,5 +65,8 @@ export class RegisterUsuarioComponent {
       this.mensaje = 'Error al registrar';
     }
   });
+  }
+  volverLogin() {
+   this.router.navigate(['/login']);
   }
 }

@@ -1,12 +1,13 @@
-/* FONDO OSCURO */
+/* FONDO AZUL */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.4);
+
+  background: #1e3a5f; /* 🔥 SOLO AZUL */
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -14,87 +15,66 @@
 
 /* CAJA */
 .modal-box {
-  background: #fff;
+  background: white;
   padding: 25px;
-  border-radius: 15px;
-  width: 300px;
-  position: relative;
+  border-radius: 12px;
+  width: 320px;
+
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  position: relative;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
-/* TÍTULO */
-.modal-box h2 {
-  margin-bottom: 40px;
-}
-
-
-.modal-box input {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  outline: none;
-  box-sizing: border-box; 
-}
-
-
-.rol-selector {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-
-.rol-selector button {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 20px;
-  background: #eee;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-
-.rol-selector button.activo {
-  background: #e0e0e0;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-}
-
-
-.btn-primary {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #1e3a5f;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-
-.btn-secondary {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border: none;
-  border-radius: 8px;
-  background: #ccc;
-  color: black;
-  cursor: pointer;
-}
-
+/* BOTÓN X */
 .close-btn {
   position: absolute;
   top: 10px;
-  right: 15px;
-  background: transparent;
+  right: 10px;
   border: none;
+  background: transparent;
   font-size: 18px;
   cursor: pointer;
+}
+
+/* INPUTS CENTRADOS */
+input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BOTÓN PRINCIPAL */
+.btn-primary {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* SELECTOR DE ROL */
+.rol-selector {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.rol-selector button {
+  width: 48%;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+/* BOTÓN ACTIVO */
+.activo {
+  background: #1e3a5f;
+  color: white;
 }

@@ -17,4 +17,8 @@ export class AuthService {
     registerCliente(data: any) {
     return this.http.post(`${this.apiUrl}/registrar`, data);
   }
+  
+  crearServicio(data: any) {
+  return this.http.post('https://localhost:7013/api/Servicio/crear', data);
+}
 }
