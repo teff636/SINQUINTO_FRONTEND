@@ -37,21 +37,19 @@ export class LoginComponent {
     };
 
     this.authService.login(data).subscribe({
-  next: (res) => {
+    next: (res) => {
+      this.mensaje = 'Bienvenido ' + res.nombre;
 
-    console.log(res); // 👈 para verificar
+       localStorage.setItem('token', res.token);
+       localStorage.setItem('usuario', JSON.stringify(res));
 
-    // 🔥 GUARDA PRIMERO
-    localStorage.setItem('usuario', JSON.stringify(res));
-
-    // 🔥 LUEGO NAVEGA
-    if (res.rol === 'Cliente') {
+     if (res.rol === 'Cliente') {
       this.router.navigate(['/cliente']);
-    } else {
+  } else {
       this.router.navigate(['/vendedor']);
-    }
+  }
+},
 
-  },
   error: () => {
     this.mensaje = 'Correo o contraseña incorrectos';
   }
