@@ -1,19 +1,87 @@
-<h2>Bienvenido vendedor 👋</h2>
+<div class="container">
 
-<!-- BOTÓN + -->
-<button class="btn-add" (click)="abrirFormulario()">
-  ➕
-</button>
+  
+  <header class="topbar">
 
-<!-- FORMULARIO SOLO SI SE ACTIVA -->
-<div *ngIf="mostrarFormulario" class="modal">
+    <h1>Servi<span class="click">Click</span></h1>
 
-  <div class="modal-content">
 
-    <button class="close" (click)="cerrarFormulario()">✖</button>
+    <div class="profile" (click)="irPerfil()">
+      {{ iniciales }}
+    </div>
 
-    <app-publicar-servicio></app-publicar-servicio>
+  </header>
+
+
+  <div class="search-box">
+    🔎
+    <input type="text" placeholder="Buscar servicios..." />
+  </div>
+
+  <div class="categories">
+
+    <button class="active">Todos</button>
+    <button>Tecnología</button>
+    <button>Diseño</button>
+    <button>Hogar</button>
+    <button>Clases</button>
+    <button>Legal</button>
 
   </div>
+
+ 
+  <div class="empty-content">
+
+    <h2>Bienvenido vendedor</h2>
+
+    <p>
+      Aquí podrás publicar tus servicios y administrar tus publicaciones.
+    </p>
+
+  </div>
+
+
+  <button class="btn-add" (click)="abrirFormulario()">
+    +
+  </button>
+
+ 
+  <div *ngIf="mostrarFormulario" class="modal">
+
+    <div class="modal-content">
+
+      <button class="close" (click)="cerrarFormulario()">
+        ✖
+      </button>
+
+      <app-publicar-servicio></app-publicar-servicio>
+
+    </div>
+
+  </div>
+
+  <footer class="bottom-nav">
+
+  <div>
+    <span class="material-icons-outlined">home</span>
+    <span>Inicio</span>
+  </div>
+
+  <div>
+    <span class="material-icons-outlined">tune</span>
+    <span>Servicios</span>
+  </div>
+
+  <div>
+    <span class="material-icons-outlined">chat_bubble_outline</span>
+    <span>Mensajes</span>
+  </div>
+
+  <div class="active">
+    <span class="material-icons-outlined">person</span>
+    <span>Perfil</span>
+  </div>
+
+  </footer>
 
 </div>

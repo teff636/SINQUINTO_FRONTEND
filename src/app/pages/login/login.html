@@ -1,15 +1,13 @@
 <div class="container">
 
-
   <div class="left-panel">
-    <h1>Bienvenido a ServiClick!</h1>
+    <h1>Bienvenido a Servi<span class="click">Click</span></h1>
     <p>¿No tienes una cuenta?</p>
 
     <button class="btn-outline" (click)="irRegistro()">
       Registrarse
     </button>
   </div>
-
 
   <div class="right-panel">
     <div class="login-box">
@@ -28,7 +26,8 @@
         [(ngModel)]="password"
       >
 
-      <button (click)="iniciarSesion()">
+      
+      <button class="btn-login" (click)="iniciarSesion()">
         Iniciar Sesión
       </button>
 

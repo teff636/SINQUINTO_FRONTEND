@@ -1,29 +1,86 @@
-
 <div class="container">
 
-  <h2>Publicar Servicio</h2>
+  <h2>Nueva publicación</h2>
 
-  <input 
-    type="text" 
-    placeholder="Nombre del servicio" 
-    [(ngModel)]="nombre"
-  >
 
-  <textarea 
-    placeholder="Descripción del servicio"
-    [(ngModel)]="descripcion">
-  </textarea>
+  <div class="card">
+    <p class="paso">PASO 1 — CATEGORÍA</p>
+    <p>¿Qué tipo de servicio ofreces?</p>
 
-  <input 
-    type="number" 
-    placeholder="Precio" 
-    [(ngModel)]="precio"
-  >
+    <div class="categorias">
+      <button *ngFor="let cat of categorias"
+        (click)="seleccionarCategoria(cat)"
+        [class.activa]="categoriaSeleccionada === cat">
+        {{ cat }}
+      </button>
+    </div>
+  </div>
 
-  <button type="button" (click)="publicar()">
-    Publicar
+
+  <div class="card">
+    <p class="paso">PASO 2 — DESCRIPCIÓN</p>
+    <p>Cuéntanos sobre tu servicio</p>
+
+    <textarea [(ngModel)]="descripcion"></textarea>
+  </div>
+
+
+  <div class="card">
+    <p class="paso">PASO 3 — FOTOS</p>
+
+    <label class="upload">
+        📷 <span>Toca para subir imágenes</span>
+       <input type="file" multiple (change)="onFileSelected($event)">
+       </label>
+  </div>
+
+
+  <div class="card">
+    <p class="paso">PASO 4 — PRECIO</p>
+
+    <div class="precio">
+      <span class="peso">$</span>
+
+      <input 
+        type="text"
+        [(ngModel)]="precio"
+        (input)="formatearPrecio()"
+        placeholder="0"
+      >
+
+      <button 
+        (click)="tipoCobro='sesion'"
+        [class.activo]="tipoCobro==='sesion'">
+        / sesión
+      </button>
+
+      <button 
+        (click)="tipoCobro='hora'"
+        [class.activo]="tipoCobro==='hora'">
+        / hora
+      </button>
+    </div>
+  </div>
+
+
+  <button class="publicar" (click)="publicar()">
+    Publicar servicio
   </button>
 
-  <p style="color:red">{{ mensaje }}</p>
+</div>
 
+
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-content">
+
+    <h3>¡Felicidades!</h3>
+    <p>Tu servicio ha sido publicado correctamente</p>
+    <p class="pregunta">¿Quieres agregar otro servicio?</p>
+
+    <div class="acciones">
+      <button class="btn-si" (click)="publicarOtro()">Sí</button>
+      <button class="btn-no" (click)="irInicio()">No</button>
+    </div>
+
+  </div>
 </div>

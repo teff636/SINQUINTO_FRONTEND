@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'app-publicar-servicio',
@@ -12,38 +12,53 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class PublicarServicioComponent {
 
-  nombre: string = '';
-  descripcion: string = '';
-  precio: string = '';
-  mensaje: string = '';
+  descripcion = '';
+  precio = '';
+  categoriaSeleccionada = 'Tecnología';
+  tipoCobro = 'sesion';
 
-  constructor(private authService: AuthService) {}
+  mostrarModal = false;
+
+  categorias = ['Tecnología', 'Diseño', 'Hogar', 'Clases', 'Legal', 'Otro'];
+
+  constructor(private router: Router) {} 
+
+  seleccionarCategoria(cat: string) {
+    this.categoriaSeleccionada = cat;
+  }
+
+
+  formatearPrecio() {
+    let limpio = this.precio.replace(/\D/g, '');
+    this.precio = new Intl.NumberFormat('es-CO').format(Number(limpio));
+  }
+
+
+  onFileSelected(event: any) {
+    const files = event.target.files;
+    console.log(files);
+  }
 
   publicar() {
-
-    if (!this.nombre || !this.descripcion || !this.precio) {
-      this.mensaje = 'Todos los campos son obligatorios';
-      return;
-    }
-
-    const data = {
-      Nombre: this.nombre,
-      Descripcion: this.descripcion,
-      Precio: this.precio
-    };
-
-    this.authService.crearServicio(data).subscribe({
-      next: () => {
-        this.mensaje = 'Servicio publicado 🎉';
-
-        this.nombre = '';
-        this.descripcion = '';
-        this.precio = '';
-      },
-      error: (err) => {
-        console.log(err);
-        this.mensaje = 'Error al publicar';
-      }
+    console.log({
+      descripcion: this.descripcion,
+      categoria: this.categoriaSeleccionada,
+      precio: this.precio,
+      tipo: this.tipoCobro
     });
+
+    this.mostrarModal = true;
   }
+
+  publicarOtro() {
+    this.mostrarModal = false;
+    this.descripcion = '';
+    this.precio = '';
+  }
+
+ 
+  irInicio() {
+    this.router.navigate(['/vendedor']); 
+  }
+
 }
