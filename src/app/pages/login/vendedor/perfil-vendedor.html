@@ -1,0 +1,159 @@
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="topbar">
+
+    <h1>Servi<span class="click">Click</span></h1>
+
+  </header>
+
+  <!-- PERFIL -->
+  <div class="perfil-header">
+
+    <div class="avatar-big">
+      {{ iniciales }}
+    </div>
+
+    <h2>{{ nombreCompleto }}</h2>
+
+    <p>Vendedor · ServiClick</p>
+
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="formulario">
+
+    <!-- NOMBRE -->
+    <div class="campo">
+
+      <label>Nombre completo</label>
+
+      <input
+        type="text"
+        [(ngModel)]="nombreCompleto"
+        [disabled]="!modoEdicion"
+        [class.input-disabled]="!modoEdicion">
+
+    </div>
+
+    <!-- CORREO -->
+    <div class="campo">
+
+      <label>Correo electrónico</label>
+
+      <input
+        type="email"
+        [(ngModel)]="correo"
+        [disabled]="!modoEdicion"
+        [class.input-disabled]="!modoEdicion">
+
+    </div>
+
+    <!-- TELÉFONO -->
+    <div class="campo">
+
+      <label>Teléfono</label>
+
+      <input
+        type="text"
+        [(ngModel)]="telefono"
+        [disabled]="!modoEdicion"
+        [class.input-disabled]="!modoEdicion">
+
+    </div>
+
+    <!-- CIUDAD -->
+    <div class="campo">
+
+      <label>Ciudad</label>
+
+      <select
+        [(ngModel)]="ciudad"
+        [disabled]="!modoEdicion"
+        [class.input-disabled]="!modoEdicion">
+
+        <option>Bogotá</option>
+        <option>Medellín</option>
+        <option>Cali</option>
+        <option>Barranquilla</option>
+        <option>Cartagena</option>
+        <option>Bucaramanga</option>
+        <option>Pereira</option>
+        <option>Manizales</option>
+        <option>Santa Marta</option>
+        <option>Cúcuta</option>
+        <option>Villavicencio</option>
+        <option>Pasto</option>
+        <option>Montería</option>
+        <option>Ibagué</option>
+        <option>Armenia</option>
+        <option>Neiva</option>
+
+      </select>
+
+    </div>
+
+    <!-- BOTONES -->
+    <button
+      *ngIf="!modoEdicion"
+      class="btn-editar"
+      (click)="activarEdicion()">
+
+      Editar perfil
+
+    </button>
+
+    <div
+      class="acciones"
+      *ngIf="modoEdicion">
+
+      <button
+        class="btn-guardar"
+        (click)="guardarCambios()">
+
+        Guardar cambios
+
+      </button>
+
+      <button
+        class="btn-cancelar"
+        (click)="cancelarEdicion()">
+
+        Cancelar
+
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bottom-nav">
+
+    <!-- INICIO -->
+    <div (click)="irInicio()">
+      <span class="material-icons-outlined">home</span>
+      <span>Inicio</span>
+    </div>
+
+    <!-- SERVICIOS -->
+    <div (click)="irServicios()">
+      <span class="material-icons-outlined">tune</span>
+      <span>Servicios</span>
+    </div>
+
+    <!-- SOLICITUDES -->
+    <div (click)="irSolicitudes()">
+      <span class="material-icons-outlined">assignment</span>
+      <span>Solicitudes</span>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="active">
+      <span class="material-icons-outlined">person</span>
+      <span>Perfil</span>
+    </div>
+
+  </footer>
+
+</div>

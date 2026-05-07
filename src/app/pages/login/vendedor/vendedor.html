@@ -1,36 +1,126 @@
 <div class="container">
 
-  
+  <!-- HEADER -->
   <header class="topbar">
 
     <h1>Servi<span class="click">Click</span></h1>
 
-
-    <div class="profile" (click)="irPerfil()">
+    <!-- YA NO ABRE PERFIL -->
+    <div class="profile">
       {{ iniciales }}
     </div>
 
   </header>
 
-
+  <!-- BUSCADOR -->
   <div class="search-box">
     🔎
     <input type="text" placeholder="Buscar servicios..." />
   </div>
 
+  <!-- CATEGORÍAS -->
   <div class="categories">
 
-    <button class="active">Todos</button>
-    <button>Tecnología</button>
-    <button>Diseño</button>
-    <button>Hogar</button>
-    <button>Clases</button>
-    <button>Legal</button>
+    <button
+      [class.active]="categoriaActiva === 'Todos'"
+      (click)="filtrarCategoria('Todos')">
+
+      Todos
+
+    </button>
+
+    <button
+      [class.active]="categoriaActiva === 'Tecnología'"
+      (click)="filtrarCategoria('Tecnología')">
+
+      Tecnología
+
+    </button>
+
+    <button
+      [class.active]="categoriaActiva === 'Diseño'"
+      (click)="filtrarCategoria('Diseño')">
+
+      Diseño
+
+    </button>
+
+    <button
+      [class.active]="categoriaActiva === 'Hogar'"
+      (click)="filtrarCategoria('Hogar')">
+
+      Hogar
+
+    </button>
+
+    <button
+      [class.active]="categoriaActiva === 'Clases'"
+      (click)="filtrarCategoria('Clases')">
+
+      Clases
+
+    </button>
+
+    <button
+      [class.active]="categoriaActiva === 'Legal'"
+      (click)="filtrarCategoria('Legal')">
+
+      Legal
+
+    </button>
 
   </div>
 
- 
-  <div class="empty-content">
+  <!-- SERVICIOS -->
+  <div
+    class="services-container"
+    *ngIf="serviciosFiltrados.length > 0">
+
+    <div
+      class="service-card"
+      *ngFor="let servicio of serviciosFiltrados">
+
+      <!-- IMAGEN -->
+      <div class="service-image">
+
+        <img
+          *ngIf="servicio.imagen"
+          [src]="servicio.imagen"
+        >
+
+        <div
+          *ngIf="!servicio.imagen"
+          class="placeholder">
+
+          📷
+
+        </div>
+
+      </div>
+
+      <!-- INFO -->
+      <div class="service-info">
+
+        <h3>{{ servicio.nombre }}</h3>
+
+        <p class="categoria">
+          {{ servicio.categoria }}
+        </p>
+
+        <p class="precio">
+          $ {{ servicio.precio }}
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- VACÍO -->
+  <div
+    class="empty-content"
+    *ngIf="serviciosFiltrados.length === 0">
 
     <h2>Bienvenido vendedor</h2>
 
@@ -40,12 +130,12 @@
 
   </div>
 
-
+  <!-- BOTÓN AGREGAR -->
   <button class="btn-add" (click)="abrirFormulario()">
     +
   </button>
 
- 
+  <!-- MODAL -->
   <div *ngIf="mostrarFormulario" class="modal">
 
     <div class="modal-content">
@@ -60,28 +150,34 @@
 
   </div>
 
-  <footer class="bottom-nav">
+  <!-- FOOTER -->
+ <!-- FOOTER -->
+<footer class="bottom-nav">
 
-  <div>
+  <!-- INICIO -->
+  <div class="active">
     <span class="material-icons-outlined">home</span>
     <span>Inicio</span>
   </div>
 
-  <div>
+  <!-- SERVICIOS -->
+  <div (click)="irMisServicios()">
     <span class="material-icons-outlined">tune</span>
     <span>Servicios</span>
   </div>
 
-  <div>
-    <span class="material-icons-outlined">chat_bubble_outline</span>
-    <span>Mensajes</span>
+  <!-- SOLICITUDES -->
+  <div (click)="irSolicitudes()">
+    <span class="material-icons-outlined">assignment</span>
+    <span>Solicitudes</span>
   </div>
 
-  <div class="active">
+  <!-- PERFIL -->
+  <div (click)="irPerfil()">
     <span class="material-icons-outlined">person</span>
     <span>Perfil</span>
   </div>
 
-  </footer>
+</footer>
 
 </div>
