@@ -82,7 +82,7 @@ body {
   font-size: 18px;
 }
 
-/* FORMULARIO */
+
 
 .formulario {
   padding: 30px;
@@ -120,7 +120,7 @@ body {
   transition: 0.3s;
 }
 
-/* INPUTS DESACTIVADOS */
+
 
 .input-disabled {
   background: #efefef !important;
@@ -128,7 +128,7 @@ body {
   cursor: not-allowed;
 }
 
-/* INPUT ACTIVO */
+
 
 .campo input:focus,
 .campo select:focus {
@@ -137,7 +137,7 @@ body {
   color: black;
 }
 
-/* BOTONES */
+
 
 .btn-editar,
 .btn-guardar {
@@ -189,8 +189,7 @@ body {
   cursor: pointer;
 }
 
-/* FOOTER */
-/* FOOTER */
+
 
 .bottom-nav {
   position: fixed;

@@ -1,23 +1,65 @@
-<footer class="bottom-nav">
+<div class="container">
 
+  <div class="topbar">
+    <h1>Servi<span class="click">Click</span></h1>
+    <div class="avatar">{{ iniciales }}</div>
+  </div>
+
+  <div class="sin-servicios" *ngIf="servicios.length === 0">
+    <h2>Mis Servicios</h2>
+    <p>Aquí podrás publicar tus servicios y administrar tus publicaciones.</p>
+  </div>
+
+  <div class="lista" *ngIf="servicios.length > 0">
+    <h2>Mis Servicios</h2>
+    <div class="card" *ngFor="let s of servicios">
+      <div class="card-top">
+        <div class="card-img">
+          <img *ngIf="s.photo" [src]="s.photo" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+          <span *ngIf="!s.photo">📦</span>
+        </div>
+        <div class="card-info">
+          <div class="card-nombre">{{ s.title }}</div>
+          <div class="card-categoria">{{ s.category }}</div>
+          <div class="card-precio">$ {{ s.price }}</div>
+        </div>
+      </div>
+      <div class="card-acciones">
+        <button class="btn-editar" (click)="editar(s)">Editar</button>
+        <button class="btn-eliminar" (click)="eliminar(s)">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-add" (click)="abrirFormulario()">+</button>
+
+<div *ngIf="mostrarFormulario" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-btn" (click)="cerrarFormulario()">✖</button>
+    <app-publicar-servicio
+      (servicioPublicado)="onServicioPublicado()"
+      (cerrar)="cerrarFormulario()">
+    </app-publicar-servicio>
+  </div>
+</div>
+
+</div>
+
+<footer class="bottom-nav">
   <div (click)="irInicio()">
     <span class="material-icons-outlined">home</span>
     <span>Inicio</span>
   </div>
-
   <div class="active">
     <span class="material-icons-outlined">tune</span>
     <span>Servicios</span>
   </div>
-
   <div (click)="irSolicitudes()">
     <span class="material-icons-outlined">assignment</span>
     <span>Solicitudes</span>
   </div>
-
   <div (click)="irPerfil()">
     <span class="material-icons-outlined">person</span>
     <span>Perfil</span>
   </div>
-
 </footer>

@@ -1,121 +1,70 @@
 <div class="container">
 
-  <!-- HEADER -->
   <header class="topbar">
-
     <h1>Servi<span class="click">Click</span></h1>
-
-    <div class="profile">
-      {{ iniciales }}
-    </div>
-
+    <div class="profile">{{ iniciales }}</div>
   </header>
 
-  <!-- TÍTULO -->
   <div class="title-section">
-
     <h2>Solicitudes de Servicio</h2>
-
   </div>
 
-  <!-- LISTA -->
   <div class="solicitudes-container">
 
-    <div
-      class="solicitud-card"
-      *ngFor="let s of solicitudes">
+    <div class="solicitud-card" *ngFor="let s of solicitudes">
 
-      <!-- TOP -->
       <div class="solicitud-top">
 
         <div class="cliente-info">
-
           <div class="avatar-cliente">
-            {{ s.cliente.charAt(0) }}
+            {{ s.userId }}
           </div>
-
           <div>
-
-            <h3>{{ s.cliente }}</h3>
-
-            <p>
-              {{ s.servicio }}
-            </p>
-
+            <h3>Usuario #{{ s.userId }}</h3>
+            <p>Servicio #{{ s.serviceOfferId }}</p>
           </div>
-
         </div>
 
-        <!-- ESTADO -->
         <span
           class="estado"
-          [class.pendiente]="s.estado === 'Pendiente'"
-          [class.aceptada]="s.estado === 'Aceptada'"
-          [class.rechazada]="s.estado === 'Rechazada'">
-
-          {{ s.estado }}
-
+          [class.pendiente]="s.status === 'PENDING'"
+          [class.aceptada]="s.status === 'CONFIRMED'"
+          [class.rechazada]="s.status === 'CANCELLED'">
+          {{ s.status }}
         </span>
 
       </div>
 
-      <!-- MENSAJE -->
       <div class="mensaje-box">
-
-        {{ s.mensaje }}
-
+        Fecha: {{ s.date | date:'short' }}
       </div>
 
-      <!-- BOTONES -->
-      <div
-        class="acciones"
-        *ngIf="s.estado === 'Pendiente'">
-
-        <button
-          class="btn-aceptar"
-          (click)="aceptar(s)">
-
-          ✓ Aceptar
-
-        </button>
-
-        <button
-          class="btn-rechazar"
-          (click)="rechazar(s)">
-
-          ✕ Negar
-
-        </button>
-
+      <div class="acciones" *ngIf="s.status === 'PENDING'">
+        <button class="btn-aceptar" (click)="aceptar(s)">✓ Aceptar</button>
+        <button class="btn-rechazar" (click)="rechazar(s)">✕ Negar</button>
       </div>
 
     </div>
 
   </div>
 
-  <!-- FOOTER -->
   <footer class="bottom-nav">
-
     <div (click)="irInicio()">
       <span class="material-icons-outlined">home</span>
       <span>Inicio</span>
     </div>
-
     <div (click)="irServicios()">
       <span class="material-icons-outlined">tune</span>
       <span>Servicios</span>
     </div>
-
     <div class="active">
       <span class="material-icons-outlined">assignment</span>
       <span>Solicitudes</span>
     </div>
-
     <div (click)="irPerfil()">
       <span class="material-icons-outlined">person</span>
       <span>Perfil</span>
     </div>
-
   </footer>
 
 </div>

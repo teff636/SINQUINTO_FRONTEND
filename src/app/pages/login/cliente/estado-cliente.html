@@ -1,0 +1,56 @@
+<div class="container">
+
+  <header class="topbar">
+    <h1>Servi<span class="click">Click</span></h1>
+    <div class="avatar">{{ iniciales }}</div>
+  </header>
+
+  <div class="content">
+
+    <h2>Estado de mis Solicitudes</h2>
+
+    <div *ngIf="solicitudes.length === 0" class="empty">
+      <p>No tienes solicitudes aún.</p>
+    </div>
+
+    <div class="solicitud-card" *ngFor="let s of solicitudes" [class]="getEstadoClass(s.status)">
+
+      <div class="card-top">
+        <div class="avatar-small">S{{ s.serviceOfferId }}</div>
+        <div class="card-info">
+          <p class="servicio-id">Servicio #{{ s.serviceOfferId }}</p>
+          <p class="vendedor-id">Vendedor #{{ s.userId }}</p>
+        </div>
+        <span class="badge" [class]="getEstadoClass(s.status)">
+          {{ getEstadoLabel(s.status) }}
+        </span>
+      </div>
+
+      <div class="card-detalle">
+        Fecha: {{ s.date | date:'short' }} · Estado: {{ getEstadoLabel(s.status) }}
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer class="bottom-nav">
+    <div (click)="irInicio()">
+      <span class="material-icons-outlined">home</span>
+      <span>Inicio</span>
+    </div>
+    <div (click)="irGuardados()">
+      <span class="material-icons-outlined">bookmark</span>
+      <span>Guardados</span>
+    </div>
+    <div class="active">
+      <span class="material-icons-outlined">assignment</span>
+      <span>Estado</span>
+    </div>
+    <div (click)="irPerfil()">
+      <span class="material-icons-outlined">person</span>
+      <span>Perfil</span>
+    </div>
+  </footer>
+
+</div>

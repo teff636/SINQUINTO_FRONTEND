@@ -2,11 +2,21 @@
 
   <h2>Nueva publicación</h2>
 
-
+  <!-- TITULO -->
   <div class="card">
-    <p class="paso">PASO 1 — CATEGORÍA</p>
-    <p>¿Qué tipo de servicio ofreces?</p>
+    <p class="paso">PASO 1 — TÍTULO</p>
+    <p>¿Cómo se llama tu servicio?</p>
+    <input
+      type="text"
+      [(ngModel)]="titulo"
+      placeholder="Ej: Reparación de computadores"
+      style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+  </div>
 
+  <!-- CATEGORIA -->
+  <div class="card">
+    <p class="paso">PASO 2 — CATEGORÍA</p>
+    <p>¿Qué tipo de servicio ofreces?</p>
     <div class="categorias">
       <button *ngFor="let cat of categorias"
         (click)="seleccionarCategoria(cat)"
@@ -16,45 +26,40 @@
     </div>
   </div>
 
-
+  <!-- DESCRIPCION -->
   <div class="card">
-    <p class="paso">PASO 2 — DESCRIPCIÓN</p>
+    <p class="paso">PASO 3 — DESCRIPCIÓN</p>
     <p>Cuéntanos sobre tu servicio</p>
-
     <textarea [(ngModel)]="descripcion"></textarea>
   </div>
 
-
+  <!-- FOTOS -->
   <div class="card">
-    <p class="paso">PASO 3 — FOTOS</p>
-
+    <p class="paso">PASO 4 — FOTOS</p>
     <label class="upload">
-        📷 <span>Toca para subir imágenes</span>
-       <input type="file" multiple (change)="onFileSelected($event)">
-       </label>
+      📷 <span>Toca para subir imágenes</span>
+      <input type="file" multiple (change)="onFileSelected($event)">
+    </label>
+    <img *ngIf="imagenBase64" [src]="imagenBase64"
+      style="width:100%; margin-top:10px; border-radius:8px;">
   </div>
 
-
+  <!-- PRECIO -->
   <div class="card">
-    <p class="paso">PASO 4 — PRECIO</p>
-
+    <p class="paso">PASO 5 — PRECIO</p>
     <div class="precio">
       <span class="peso">$</span>
-
-      <input 
+      <input
         type="text"
         [(ngModel)]="precio"
         (input)="formatearPrecio()"
-        placeholder="0"
-      >
-
-      <button 
+        placeholder="0">
+      <button
         (click)="tipoCobro='sesion'"
         [class.activo]="tipoCobro==='sesion'">
         / sesión
       </button>
-
-      <button 
+      <button
         (click)="tipoCobro='hora'"
         [class.activo]="tipoCobro==='hora'">
         / hora
@@ -62,6 +67,10 @@
     </div>
   </div>
 
+  <!-- ERROR -->
+  <p *ngIf="mensajeError" style="color:red; text-align:center;">
+    {{ mensajeError }}
+  </p>
 
   <button class="publicar" (click)="publicar()">
     Publicar servicio
@@ -69,18 +78,15 @@
 
 </div>
 
-
+<!-- MODAL ÉXITO -->
 <div class="modal" *ngIf="mostrarModal">
   <div class="modal-content">
-
     <h3>¡Felicidades!</h3>
     <p>Tu servicio ha sido publicado correctamente</p>
     <p class="pregunta">¿Quieres agregar otro servicio?</p>
-
     <div class="acciones">
       <button class="btn-si" (click)="publicarOtro()">Sí</button>
       <button class="btn-no" (click)="irInicio()">No</button>
     </div>
-
   </div>
 </div>

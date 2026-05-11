@@ -1,13 +1,151 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { font-family: Arial, Helvetica, sans-serif; background: #f7f3f3; }
+
 .container {
-  text-align: center;
-  margin-top: 50px;
+  min-height: 100vh;
+  background: #f7f3f3;
+  padding-bottom: 80px;
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #6c63ff;
+.topbar {
+  background: #5a0015;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+}
+
+.topbar h1 { font-size: 45px; }
+.topbar .click { color: #d4af37; }
+
+.avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #d4af37;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: #4d0011;
+}
+
+.search-box {
+  padding: 16px 20px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 30px;
+  border: 1px solid #e0caca;
+  background: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.categories {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 16px;
+  overflow-x: auto;
+}
+
+.categories button {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid #e0caca;
+  background: white;
+  color: #5a0015;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.categories button.active {
+  background: #7b1028;
+  color: white;
+  border-color: #7b1028;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.service-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.service-card:hover { transform: translateY(-2px); }
+
+.card-image {
+  height: 180px;
+  background: #f1dfe3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-image img { width: 100%; height: 100%; object-fit: cover; }
+.card-image .placeholder { font-size: 40px; }
+
+.card-body { padding: 16px; }
+.card-body h3 { font-size: 18px; color: #5a0015; margin-bottom: 6px; font-weight: bold; }
+.card-body .categoria { font-size: 14px; color: #8b6b6b; margin-bottom: 6px; }
+.card-body .precio { font-size: 18px; font-weight: bold; color: #7b1028; margin-bottom: 12px; }
+
+.btn-solicitar {
+  width: 100%;
+  padding: 12px;
+  background: #7b1028;
   color: white;
   border: none;
+  border-radius: 12px;
   cursor: pointer;
+  font-size: 15px;
 }
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9a6f6f;
+  font-size: 16px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #e7d5d5;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  z-index: 100;
+}
+
+.bottom-nav div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #888;
+  cursor: pointer;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.bottom-nav div.active { color: #7b1028; font-weight: bold; }
+.bottom-nav .material-icons-outlined { font-size: 25px !important; }

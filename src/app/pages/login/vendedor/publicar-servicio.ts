@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-publicar-servicio',
@@ -12,14 +13,18 @@ import { Router } from '@angular/router';
 })
 export class PublicarServicioComponent {
 
+  // Emite evento al componente padre cuando se publica
+  @Output() servicioPublicado = new EventEmitter<void>();
+
+  titulo = '';
   descripcion = '';
   precio = '';
+  duracionEstimada = 60;
   categoriaSeleccionada = 'Tecnología';
   tipoCobro = 'sesion';
-
   mostrarModal = false;
-
   imagenBase64: string = '';
+  mensajeError = '';
 
   categorias = [
     'Tecnología',
@@ -30,7 +35,10 @@ export class PublicarServicioComponent {
     'Otro'
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   seleccionarCategoria(cat: string) {
     this.categoriaSeleccionada = cat;
@@ -41,69 +49,79 @@ export class PublicarServicioComponent {
     this.precio = new Intl.NumberFormat('es-CO').format(Number(limpio));
   }
 
-  /* GUARDAR IMAGEN */
   onFileSelected(event: any) {
-
     const file = event.target.files[0];
-
     if (file) {
-
       const reader = new FileReader();
-
       reader.onload = () => {
         this.imagenBase64 = reader.result as string;
       };
-
       reader.readAsDataURL(file);
     }
   }
 
   publicar() {
+    this.mensajeError = '';
+
+    const usuario = this.authService.getUsuarioLocal();
+    if (!usuario) {
+      this.mensajeError = 'No hay sesión activa';
+      return;
+    }
+
+    // Validar campos obligatorios
+    if (!this.titulo.trim()) {
+      this.mensajeError = 'El título es obligatorio';
+      return;
+    }
+    if (!this.descripcion.trim()) {
+      this.mensajeError = 'La descripción es obligatoria';
+      return;
+    }
+    if (!this.precio) {
+      this.mensajeError = 'El precio es obligatorio';
+      return;
+    }
+
+    const precioLimpio = parseFloat(this.precio.replace(/\./g, '').replace(',', '.'));
 
     const nuevoServicio = {
-
-      id: Date.now(),
-
-      imagen: this.imagenBase64,
-
-      nombre: this.descripcion,
-
-      categoria: this.categoriaSeleccionada,
-
-      precio: this.precio,
-
-      estado: 'Activo'
+      sellerId: usuario.userId,
+      title: this.titulo,
+      description: this.descripcion,
+      price: precioLimpio,
+      estimatedDuration: this.duracionEstimada,
+      category: this.categoriaSeleccionada,
+      photo: this.imagenBase64
     };
 
-    /* OBTENER SERVICIOS */
-    const serviciosGuardados =
-      JSON.parse(localStorage.getItem('servicios') || '[]');
-
-    /* AGREGAR NUEVO */
-    serviciosGuardados.push(nuevoServicio);
-
-    /* GUARDAR */
-    localStorage.setItem(
-      'servicios',
-      JSON.stringify(serviciosGuardados)
-    );
-
-    console.log('Servicio guardado');
-
-    this.mostrarModal = true;
+    this.authService.crearServicio(nuevoServicio).subscribe({
+      next: () => {
+        console.log('Servicio guardado en BD');
+        this.mostrarModal = true;
+        // Avisar al componente padre que se publicó un servicio nuevo
+        this.servicioPublicado.emit();
+      },
+      error: (err) => {
+        console.log(err);
+        this.mensajeError = 'Error al publicar el servicio';
+      }
+    });
   }
 
+
   publicarOtro() {
-
     this.mostrarModal = false;
-
+    this.titulo = '';
     this.descripcion = '';
     this.precio = '';
     this.imagenBase64 = '';
+    this.mensajeError = '';
   }
 
-  irInicio() {
-    this.router.navigate(['/vendedor']);
-  }
+@Output() cerrar = new EventEmitter<void>();
 
+irInicio() {
+  this.cerrar.emit();
+}
 }

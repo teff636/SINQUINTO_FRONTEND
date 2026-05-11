@@ -1,13 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 export interface Solicitud {
-  id: number;
-  cliente: string;
-  servicio: string;
-  mensaje: string;
-  estado: 'Pendiente' | 'Aceptada' | 'Rechazada';
+  appointmentId: number;
+  userId: number;
+  serviceOfferId: number;
+  date: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 }
 
 @Component({
@@ -17,38 +18,73 @@ export interface Solicitud {
   templateUrl: './solicitudes-vendedor.html',
   styleUrls: ['./solicitudes-vendedor.css']
 })
+export class SolicitudesVendedorComponent implements OnInit {
 
-export class SolicitudesVendedorComponent {
-      iniciales: string = 'EC';
+  iniciales: string = '';
+  solicitudes: Solicitud[] = [];
 
-  solicitudes: Solicitud[] = [
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-    {
-      id: 1,
-      cliente: 'Laura Gómez',
-      servicio: 'Diseño de logo',
-      mensaje: 'Hola, necesito un logo minimalista.',
-      estado: 'Pendiente'
+  ngOnInit() {
+  const usuario = this.authService.getUsuarioLocal();
+  if (usuario) {
+    this.iniciales = usuario.email?.substring(0, 2).toUpperCase() || 'US';
+    this.cargarSolicitudes(usuario.userId);
+  }
+}
+
+cargarSolicitudes(sellerId: number) {
+  this.authService.getServiciosPorVendedor(sellerId).subscribe({
+    next: (servicios: any[]) => {
+      if (servicios.length === 0) {
+        this.solicitudes = [];
+        return;
+      }
+      const solicitudesTemp: Solicitud[] = [];
+      let completados = 0;
+      servicios.forEach((servicio) => {
+        this.authService.getCitasPorServicio(servicio.serviceOfferId).subscribe({
+          next: (citas: any[]) => {
+            solicitudesTemp.push(...citas);
+            completados++;
+            if (completados === servicios.length) {
+              this.solicitudes = solicitudesTemp;
+            }
+          },
+          error: () => {
+            completados++;
+            if (completados === servicios.length) {
+              this.solicitudes = solicitudesTemp;
+            }
+          }
+        });
+      });
     },
-
-    {
-      id: 2,
-      cliente: 'Juan Pérez',
-      servicio: 'Arreglo de computador',
-      mensaje: 'Mi portátil está muy lento.',
-      estado: 'Aceptada'
-    }
-
-  ];
-
-  constructor(private router: Router) {}
+    error: (err) => console.log('Error:', err)
+  });
+}
 
   aceptar(s: Solicitud) {
-    s.estado = 'Aceptada';
+    const data = { ...s, status: 'CONFIRMED' };
+    this.authService.actualizarCita(s.appointmentId, data).subscribe({
+      next: () => {
+        s.status = 'CONFIRMED';
+      },
+      error: (err) => console.log('Error:', err)
+    });
   }
 
   rechazar(s: Solicitud) {
-    s.estado = 'Rechazada';
+    const data = { ...s, status: 'CANCELLED' };
+    this.authService.actualizarCita(s.appointmentId, data).subscribe({
+      next: () => {
+        s.status = 'CANCELLED';
+      },
+      error: (err) => console.log('Error:', err)
+    });
   }
 
   irInicio() {
@@ -62,5 +98,4 @@ export class SolicitudesVendedorComponent {
   irPerfil() {
     this.router.navigate(['/perfil-vendedor']);
   }
-
 }

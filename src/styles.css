@@ -6,3 +6,4 @@ html, body {
 body {
   background: white;
 }
+@import '@angular/material/prebuilt-themes/indigo-pink.css';

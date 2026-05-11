@@ -1,183 +1,72 @@
 <div class="container">
 
-  <!-- HEADER -->
   <header class="topbar">
-
     <h1>Servi<span class="click">Click</span></h1>
-
-    <!-- YA NO ABRE PERFIL -->
-    <div class="profile">
-      {{ iniciales }}
-    </div>
-
+    <div class="profile">{{ iniciales }}</div>
   </header>
 
-  <!-- BUSCADOR -->
   <div class="search-box">
     🔎
     <input type="text" placeholder="Buscar servicios..." />
   </div>
 
-  <!-- CATEGORÍAS -->
   <div class="categories">
-
-    <button
-      [class.active]="categoriaActiva === 'Todos'"
-      (click)="filtrarCategoria('Todos')">
-
-      Todos
-
-    </button>
-
-    <button
-      [class.active]="categoriaActiva === 'Tecnología'"
-      (click)="filtrarCategoria('Tecnología')">
-
-      Tecnología
-
-    </button>
-
-    <button
-      [class.active]="categoriaActiva === 'Diseño'"
-      (click)="filtrarCategoria('Diseño')">
-
-      Diseño
-
-    </button>
-
-    <button
-      [class.active]="categoriaActiva === 'Hogar'"
-      (click)="filtrarCategoria('Hogar')">
-
-      Hogar
-
-    </button>
-
-    <button
-      [class.active]="categoriaActiva === 'Clases'"
-      (click)="filtrarCategoria('Clases')">
-
-      Clases
-
-    </button>
-
-    <button
-      [class.active]="categoriaActiva === 'Legal'"
-      (click)="filtrarCategoria('Legal')">
-
-      Legal
-
-    </button>
-
+    <button [class.active]="categoriaActiva === 'Todos'" (click)="filtrarCategoria('Todos')">Todos</button>
+    <button [class.active]="categoriaActiva === 'Tecnología'" (click)="filtrarCategoria('Tecnología')">Tecnología</button>
+    <button [class.active]="categoriaActiva === 'Diseño'" (click)="filtrarCategoria('Diseño')">Diseño</button>
+    <button [class.active]="categoriaActiva === 'Hogar'" (click)="filtrarCategoria('Hogar')">Hogar</button>
+    <button [class.active]="categoriaActiva === 'Clases'" (click)="filtrarCategoria('Clases')">Clases</button>
+    <button [class.active]="categoriaActiva === 'Legal'" (click)="filtrarCategoria('Legal')">Legal</button>
   </div>
 
-  <!-- SERVICIOS -->
-  <div
-    class="services-container"
-    *ngIf="serviciosFiltrados.length > 0">
-
-    <div
-      class="service-card"
-      *ngFor="let servicio of serviciosFiltrados">
-
-      <!-- IMAGEN -->
+  <div class="services-container" *ngIf="serviciosFiltrados.length > 0">
+    <div class="service-card" *ngFor="let servicio of serviciosFiltrados">
       <div class="service-image">
-
-        <img
-          *ngIf="servicio.imagen"
-          [src]="servicio.imagen"
-        >
-
-        <div
-          *ngIf="!servicio.imagen"
-          class="placeholder">
-
-          📷
-
-        </div>
-
+        <img *ngIf="servicio.photo" [src]="servicio.photo">
+        <div *ngIf="!servicio.photo" class="placeholder">📷</div>
       </div>
-
-      <!-- INFO -->
       <div class="service-info">
-
-        <h3>{{ servicio.nombre }}</h3>
-
-        <p class="categoria">
-          {{ servicio.categoria }}
-        </p>
-
-        <p class="precio">
-          $ {{ servicio.precio }}
-        </p>
-
+        <h3>{{ servicio.title }}</h3>
+        <p class="categoria">{{ servicio.category }}</p>
+        <p class="precio">$ {{ servicio.price }}</p>
       </div>
-
     </div>
-
   </div>
 
-  <!-- VACÍO -->
-  <div
-    class="empty-content"
-    *ngIf="serviciosFiltrados.length === 0">
-
+  <div class="empty-content" *ngIf="serviciosFiltrados.length === 0">
     <h2>Bienvenido vendedor</h2>
-
-    <p>
-      Aquí podrás publicar tus servicios y administrar tus publicaciones.
-    </p>
-
+    <p>Aquí podrás publicar tus servicios y administrar tus publicaciones.</p>
   </div>
 
-  <!-- BOTÓN AGREGAR -->
-  <button class="btn-add" (click)="abrirFormulario()">
-    +
-  </button>
+  <button class="btn-add" (click)="abrirFormulario()">+</button>
 
-  <!-- MODAL -->
   <div *ngIf="mostrarFormulario" class="modal">
-
     <div class="modal-content">
-
-      <button class="close" (click)="cerrarFormulario()">
-        ✖
-      </button>
-
-      <app-publicar-servicio></app-publicar-servicio>
-
+      <button class="close" (click)="cerrarFormulario()">✖</button>
+      <app-publicar-servicio
+        (servicioPublicado)="onServicioPublicado()"
+        (cerrar)="cerrarFormulario()">
+      </app-publicar-servicio>
     </div>
-
   </div>
 
-  <!-- FOOTER -->
- <!-- FOOTER -->
-<footer class="bottom-nav">
-
-  <!-- INICIO -->
-  <div class="active">
-    <span class="material-icons-outlined">home</span>
-    <span>Inicio</span>
-  </div>
-
-  <!-- SERVICIOS -->
-  <div (click)="irMisServicios()">
-    <span class="material-icons-outlined">tune</span>
-    <span>Servicios</span>
-  </div>
-
-  <!-- SOLICITUDES -->
-  <div (click)="irSolicitudes()">
-    <span class="material-icons-outlined">assignment</span>
-    <span>Solicitudes</span>
-  </div>
-
-  <!-- PERFIL -->
-  <div (click)="irPerfil()">
-    <span class="material-icons-outlined">person</span>
-    <span>Perfil</span>
-  </div>
-
-</footer>
+  <footer class="bottom-nav">
+    <div class="active">
+      <span class="material-icons-outlined">home</span>
+      <span>Inicio</span>
+    </div>
+    <div (click)="irMisServicios()">
+      <span class="material-icons-outlined">tune</span>
+      <span>Servicios</span>
+    </div>
+    <div (click)="irSolicitudes()">
+      <span class="material-icons-outlined">assignment</span>
+      <span>Solicitudes</span>
+    </div>
+    <div (click)="irPerfil()">
+      <span class="material-icons-outlined">person</span>
+      <span>Perfil</span>
+    </div>
+  </footer>
 
 </div>

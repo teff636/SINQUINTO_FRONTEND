@@ -1,5 +1,6 @@
 <div class="container">
 
+  <!-- Panel izquierdo -->
   <div class="left-panel">
     <h1>Bienvenido a Servi<span class="click">Click</span></h1>
     <p>¿No tienes una cuenta?</p>
@@ -9,6 +10,7 @@
     </button>
   </div>
 
+  <!-- Panel derecho -->
   <div class="right-panel">
     <div class="login-box">
 
@@ -18,15 +20,14 @@
         type="text" 
         placeholder="Usuario" 
         [(ngModel)]="usuario"
-      >
+      />
 
       <input 
         type="password" 
-        placeholder="Password" 
+        placeholder="Contraseña" 
         [(ngModel)]="password"
-      >
+      />
 
-      
       <button class="btn-login" (click)="iniciarSesion()">
         Iniciar Sesión
       </button>

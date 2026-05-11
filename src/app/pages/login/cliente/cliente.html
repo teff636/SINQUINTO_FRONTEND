@@ -1,9 +1,73 @@
 <div class="container">
-  <h1>Bienvenido Cliente 👤</h1>
 
-  <p *ngIf="usuario">
-    Hola {{ usuario.nombre }} 
-  </p>
+  <header class="topbar">
+    <h1>Servi<span class="click">Click</span></h1>
+    <div class="avatar">{{ iniciales }}</div>
+  </header>
 
-  <button (click)="logout()">Cerrar sesión</button>
+  <div class="search-box">
+    <input
+      type="text"
+      [(ngModel)]="busqueda"
+      (input)="buscar()"
+      placeholder="¿Qué servicio necesitas hoy?">
+  </div>
+
+  <div class="categories">
+    <button
+      *ngFor="let cat of categorias"
+      [class.active]="categoriaActiva === cat"
+      (click)="filtrarCategoria(cat)">
+      {{ cat }}
+    </button>
+  </div>
+
+  <!-- SERVICIOS -->
+  <div class="services-grid" *ngIf="serviciosFiltrados.length > 0">
+    <div
+      class="service-card"
+      *ngFor="let s of serviciosFiltrados"
+      (click)="verServicio(s)">
+
+      <div class="card-image">
+        <img *ngIf="s.photo" [src]="s.photo">
+        <div *ngIf="!s.photo" class="placeholder">📷</div>
+      </div>
+
+      <div class="card-body">
+        <h3>{{ s.title }}</h3>
+        <p class="categoria">{{ s.category }}</p>
+        <p class="precio">$ {{ s.price }}</p>
+        <button class="btn-solicitar" (click)="verServicio(s); $event.stopPropagation()">
+          Solicitar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIN SERVICIOS -->
+  <div class="empty" *ngIf="serviciosFiltrados.length === 0">
+    <p>No hay servicios disponibles en esta categoría.</p>
+  </div>
+
+  <footer class="bottom-nav">
+    <div class="active">
+      <span class="material-icons-outlined">home</span>
+      <span>Inicio</span>
+    </div>
+    <div (click)="irGuardados()">
+      <span class="material-icons-outlined">bookmark</span>
+      <span>Guardados</span>
+    </div>
+    <div (click)="irEstado()">
+      <span class="material-icons-outlined">assignment</span>
+      <span>Estado</span>
+    </div>
+    <div (click)="irPerfil()">
+      <span class="material-icons-outlined">person</span>
+      <span>Perfil</span>
+    </div>
+  </footer>
+
 </div>

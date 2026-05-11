@@ -1,0 +1,115 @@
+<div class="container">
+
+  <header class="topbar">
+    <button class="btn-volver" (click)="volver()">← Volver</button>
+    <h1>Servi<span class="click">Click</span></h1>
+  </header>
+
+  <div *ngIf="servicio">
+
+    <!-- IMAGEN -->
+    <div class="service-image">
+      <img *ngIf="servicio.photo" [src]="servicio.photo">
+      <div *ngIf="!servicio.photo" class="placeholder">📷 Imagen del servicio</div>
+    </div>
+
+    <!-- CONTENIDO EN DOS COLUMNAS -->
+    <div class="content-grid">
+
+      <!-- COLUMNA IZQUIERDA: info + horas + botón -->
+      <div class="col-left">
+
+        <h2>{{ servicio.title }}</h2>
+        <p class="precio">$ {{ servicio.price }} / sesión</p>
+        <p class="categoria">{{ servicio.category }}</p>
+        <p class="descripcion">{{ servicio.description }}</p>
+
+        <div class="seccion">
+          <h3>ELIJA UNA FECHA</h3>
+          <mat-form-field appearance="fill" style="width:100%">
+            <mat-label>Selecciona una fecha</mat-label>
+            <input matInput [matDatepicker]="picker"
+                   [(ngModel)]="fechaSeleccionada"
+                   [min]="minDate"
+                   readonly>
+            <mat-hint>DD/MM/YYYY</mat-hint>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="seccion">
+          <h3>HORA DISPONIBLE</h3>
+          <div class="horas">
+            <button
+              *ngFor="let h of horas"
+              [class.active]="horaSeleccionada === h"
+              (click)="seleccionarHora(h)">
+              {{ h }}
+            </button>
+          </div>
+        </div>
+
+        <p *ngIf="mensajeError" style="color:red; margin-bottom:10px;">{{ mensajeError }}</p>
+        <p *ngIf="mensajeExito" style="color:green; margin-bottom:10px;">{{ mensajeExito }}</p>
+
+        <button class="btn-confirmar" (click)="abrirModal()">
+          Confirmar solicitud
+        </button>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: calendario siempre visible -->
+      <div class="col-right">
+        <mat-calendar
+          [(selected)]="fechaSeleccionada"
+          [minDate]="minDate">
+        </mat-calendar>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL CONFIRMAR -->
+  <div class="modal" *ngIf="mostrarModal">
+    <div class="modal-content">
+      <div class="modal-avatar">📋</div>
+      <h3>Confirmar solicitud</h3>
+      <p class="modal-servicio">{{ servicio?.title }}</p>
+      <p class="modal-detalle">
+        {{ fechaSeleccionada | date:'dd/MM/yyyy' }} · {{ horaSeleccionada }}
+      </p>
+      <textarea
+        [(ngModel)]="nota"
+        placeholder="Nota de confirmación al vendedor"
+        rows="3">
+      </textarea>
+      <div class="modal-acciones">
+        <button class="btn-cancelar" (click)="cancelarModal()">Cancelar</button>
+        <button class="btn-confirmar-modal" (click)="confirmarSolicitud()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <footer class="bottom-nav">
+    <div (click)="volver()">
+      <span class="material-icons-outlined">home</span>
+      <span>Inicio</span>
+    </div>
+    <div>
+      <span class="material-icons-outlined">bookmark</span>
+      <span>Guardados</span>
+    </div>
+    <div>
+      <span class="material-icons-outlined">assignment</span>
+      <span>Estado</span>
+    </div>
+    <div>
+      <span class="material-icons-outlined">person</span>
+      <span>Perfil</span>
+    </div>
+  </footer>
+
+</div>

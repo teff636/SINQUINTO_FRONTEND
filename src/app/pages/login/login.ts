@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
-import { Router } from '@angular/router'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,42 +17,37 @@ export class LoginComponent {
   password: string = '';
   mensaje: string = '';
 
-  irRegistro() {
-  this.router.navigate(['/register-usuario']);
-  }
-
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.router.navigate(['/login']);
+  irRegistro() {
+    this.router.navigate(['/register-usuario']);
   }
 
   iniciarSesion() {
+    // Java espera: email y password
     const data = {
-      Correo: this.usuario,
-      Contrasena: this.password
+      email: this.usuario,
+      password: this.password
     };
 
     this.authService.login(data).subscribe({
-    next: (res) => {
-      this.mensaje = 'Bienvenido ' + res.nombre;
+      next: (res) => {
+        // Guardar token y datos del usuario
+        this.authService.guardarSesion(res);
 
-       localStorage.setItem('token', res.token);
-       localStorage.setItem('usuario', JSON.stringify(res));
-
-     if (res.rol === 'Cliente') {
-      this.router.navigate(['/cliente']);
-  } else {
-      this.router.navigate(['/vendedor']);
-  }
-},
-
-  error: () => {
-    this.mensaje = 'Correo o contraseña incorrectos';
-  }
-});
+        // Java devuelve el rol como SALESPERSON o CUSTOMER
+        if (res.role === 'SALESPERSON') {
+          this.router.navigate(['/vendedor']);
+        } else {
+          this.router.navigate(['/cliente']);
+        }
+      },
+      error: () => {
+        this.mensaje = 'Correo o contraseña incorrectos';
+      }
+    });
   }
 }
