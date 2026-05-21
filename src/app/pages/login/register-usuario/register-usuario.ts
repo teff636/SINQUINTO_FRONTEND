@@ -1,7 +1,6 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -22,12 +21,9 @@ export class RegisterUsuarioComponent {
   password = '';
   telefono = '';
   mensaje = '';
-rol: string = 'CUSTOMER';
+  rol: string = 'CUSTOMER';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService) { }
 
   registrar() {
     console.log('CLICK REGISTRAR FUNCIONA');
@@ -37,7 +33,6 @@ rol: string = 'CUSTOMER';
       return;
     }
 
-    // Java espera estos campos en inglés
     const data = {
       name: this.nombre,
       lastName: this.apellido,
@@ -54,7 +49,6 @@ rol: string = 'CUSTOMER';
         setTimeout(() => {
           this.mostrarExito = false;
           this.cerrar.emit();
-          this.router.navigate(['/login']);
         }, 2000);
       },
       error: (err) => {
@@ -69,6 +63,6 @@ rol: string = 'CUSTOMER';
   }
 
   volverLogin() {
-    this.router.navigate(['/login']);
+    this.cerrar.emit();
   }
 }

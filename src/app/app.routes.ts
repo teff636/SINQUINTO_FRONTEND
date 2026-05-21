@@ -10,12 +10,14 @@ import { RegisterUsuarioComponent } from './pages/login/register-usuario/registe
 import { PublicarServicioComponent } from './pages/login/vendedor/publicar-servicio';
 import { VerServicioComponent } from './pages/login/cliente/ver-servicio';
 import { EstadoClienteComponent } from './pages/login/cliente/estado-cliente';
+import { LogsComponent } from './pages/logs/logs';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register-usuario', component: RegisterUsuarioComponent },
+  { path: 'logs', component: LogsComponent },
 
   {
     path: 'cliente',
