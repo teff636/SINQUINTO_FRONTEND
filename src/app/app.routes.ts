@@ -5,18 +5,24 @@ import { VendedorComponent } from './pages/login/vendedor/vendedor';
 import { PerfilVendedorComponent } from './pages/login/vendedor/perfil-vendedor';
 import { MisServiciosComponent } from './pages/login/vendedor/mis-servicios';
 import { SolicitudesVendedorComponent } from './pages/login/vendedor/solicitudes-vendedor';
+import { HistorialVendedorComponent } from './pages/login/vendedor/historial-vendedor';
 import { AccesoDenegadoComponent } from './pages/acceso-denegado/acceso-denegado';
 import { RegisterUsuarioComponent } from './pages/login/register-usuario/register-usuario';
+import { SelectRoleComponent } from './pages/login/select-role/select-role';
 import { PublicarServicioComponent } from './pages/login/vendedor/publicar-servicio';
 import { VerServicioComponent } from './pages/login/cliente/ver-servicio';
 import { EstadoClienteComponent } from './pages/login/cliente/estado-cliente';
-import { LogsComponent } from './pages/logs/logs';
+import { GuardadosClienteComponent } from './pages/login/cliente/guardados-cliente';
+import { PerfilClienteComponent } from './pages/login/cliente/perfil-cliente';
+import { HistorialClienteComponent } from './pages/login/cliente/historial-cliente';
+import { LogsComponent } from './pages/logs/logs/logs';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'register-usuario', component: RegisterUsuarioComponent },
+  { path: 'select-role', component: SelectRoleComponent },
   { path: 'logs', component: LogsComponent },
 
   {
@@ -36,6 +42,27 @@ export const routes: Routes = [
   {
     path: 'estado-cliente',
     component: EstadoClienteComponent,
+    canActivate: [authGuard],
+    data: { rol: 'Cliente' }
+  },
+
+  {
+    path: 'guardados-cliente',
+    component: GuardadosClienteComponent,
+    canActivate: [authGuard],
+    data: { rol: 'Cliente' }
+  },
+
+  {
+    path: 'perfil-cliente',
+    component: PerfilClienteComponent,
+    canActivate: [authGuard],
+    data: { rol: 'Cliente' }
+  },
+
+  {
+    path: 'historial-cliente',
+    component: HistorialClienteComponent,
     canActivate: [authGuard],
     data: { rol: 'Cliente' }
   },
@@ -64,6 +91,13 @@ export const routes: Routes = [
   {
     path: 'solicitudes-vendedor',
     component: SolicitudesVendedorComponent,
+    canActivate: [authGuard],
+    data: { rol: 'Vendedor' }
+  },
+
+  {
+    path: 'historial-vendedor',
+    component: HistorialVendedorComponent,
     canActivate: [authGuard],
     data: { rol: 'Vendedor' }
   },

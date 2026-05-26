@@ -1,8 +1,8 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
 
 export interface Servicio {
   serviceOfferId: number;
@@ -13,6 +13,7 @@ export interface Servicio {
   category: string;
   price: number;
   estimatedDuration: number;
+  vendedor?: string;
 }
 
 @Component({
@@ -23,14 +24,30 @@ export interface Servicio {
   styleUrls: ['./cliente.css']
 })
 export class ClienteComponent implements OnInit {
-
   iniciales: string = '';
+
   servicios: Servicio[] = [];
   serviciosFiltrados: Servicio[] = [];
+  guardados: Servicio[] = [];
+
+  pendientesResena: number = 0;
+  notifAbierta: boolean = false;
+  itemsNotif: any[] = [];
+
   categoriaActiva: string = 'Todos';
   busqueda: string = '';
 
-  categorias = ['Todos', 'Tecnología', 'Diseño', 'Hogar', 'Clases', 'Legal', 'Otro'];
+  categorias: string[] = [
+    'Todos',
+    'Tecnología',
+    'Diseño',
+    'Hogar',
+    'Clases',
+    'Legal',
+    'Otro'
+  ];
+
+  private readonly STORAGE_GUARDADOS = 'servicios_guardados_cliente';
 
   constructor(
     private router: Router,
@@ -38,54 +55,176 @@ export class ClienteComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
-    const usuario = this.authService.getUsuarioLocal();
-    if (usuario) {
-      this.iniciales = usuario.email?.substring(0, 2).toUpperCase() || 'CL';
-    }
+  ngOnInit(): void {
+    this.cargarUsuario();
+    this.cargarGuardados();
     this.cargarServicios();
+    this.cargarNotificaciones();
   }
 
-  cargarServicios() {
+  private cargarUsuario(): void {
+    const usuario = this.authService.getUsuarioLocal();
+
+    if (!usuario) {
+      this.iniciales = 'CL';
+      return;
+    }
+
+    const email = usuario.email || '';
+    this.iniciales = email.substring(0, 2).toUpperCase() || 'CL';
+  }
+
+  private cargarGuardados(): void {
+    const data = localStorage.getItem(this.STORAGE_GUARDADOS);
+
+    if (!data) {
+      this.guardados = [];
+      return;
+    }
+
+    try {
+      this.guardados = JSON.parse(data) as Servicio[];
+    } catch (error) {
+      console.error('Error al leer servicios guardados:', error);
+      this.guardados = [];
+      localStorage.removeItem(this.STORAGE_GUARDADOS);
+    }
+  }
+
+  private guardarGuardadosEnLocalStorage(): void {
+    localStorage.setItem(
+      this.STORAGE_GUARDADOS,
+      JSON.stringify(this.guardados)
+    );
+  }
+
+  cargarServicios(): void {
     this.authService.getServicios().subscribe({
-      next: (data) => {
+      next: (data: Servicio[]) => {
         this.servicios = [...data];
-        this.serviciosFiltrados = [...data];
-        this.cdr.detectChanges();
+        this.aplicarFiltros();
       },
-      error: (err) => console.log('Error:', err)
+      error: (err) => {
+        console.error('Error al cargar servicios:', err);
+        this.servicios = [];
+        this.serviciosFiltrados = [];
+        this.cdr.detectChanges();
+      }
     });
   }
 
-  filtrarCategoria(categoria: string) {
+  filtrarCategoria(categoria: string): void {
     this.categoriaActiva = categoria;
     this.aplicarFiltros();
   }
 
-  buscar() {
+  buscar(): void {
     this.aplicarFiltros();
   }
 
-  aplicarFiltros() {
+  aplicarFiltros(): void {
+    const termino = this.normalizarTexto(this.busqueda);
+
     let resultado = [...this.servicios];
+
     if (this.categoriaActiva !== 'Todos') {
-      resultado = resultado.filter(s => s.category === this.categoriaActiva);
-    }
-    if (this.busqueda.trim()) {
-      resultado = resultado.filter(s =>
-        s.title.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-        s.description.toLowerCase().includes(this.busqueda.toLowerCase())
+      resultado = resultado.filter((servicio) =>
+        this.normalizarTexto(servicio.category) === this.normalizarTexto(this.categoriaActiva)
       );
     }
+
+    if (termino) {
+      resultado = resultado.filter((servicio) =>
+        this.normalizarTexto(servicio.title).includes(termino) ||
+        this.normalizarTexto(servicio.description).includes(termino) ||
+        this.normalizarTexto(servicio.category).includes(termino) ||
+        this.normalizarTexto(servicio.vendedor || '').includes(termino)
+      );
+    }
+
     this.serviciosFiltrados = resultado;
     this.cdr.detectChanges();
   }
 
-  verServicio(servicio: Servicio) {
-    this.router.navigate(['/ver-servicio'], { state: { servicio } });
+  private normalizarTexto(valor: string | undefined | null): string {
+    return (valor || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
-  irGuardados() { this.router.navigate(['/guardados-cliente']); }
-  irEstado() { this.router.navigate(['/estado-cliente']); }
-  irPerfil() { this.router.navigate(['/perfil-cliente']); }
+  toggleGuardado(servicio: Servicio): void {
+    const index = this.guardados.findIndex(
+      (guardado) => guardado.serviceOfferId === servicio.serviceOfferId
+    );
+
+    if (index === -1) {
+      this.guardados.push(servicio);
+    } else {
+      this.guardados.splice(index, 1);
+    }
+
+    this.guardarGuardadosEnLocalStorage();
+    this.cdr.detectChanges();
+  }
+
+  estaGuardado(servicio: Servicio): boolean {
+    return this.guardados.some(
+      (guardado) => guardado.serviceOfferId === servicio.serviceOfferId
+    );
+  }
+
+  verServicio(servicio: Servicio): void {
+    this.router.navigate(['/ver-servicio'], {
+      state: { servicio }
+    });
+  }
+
+  irInicio(): void {
+    this.router.navigate(['/cliente']);
+  }
+
+  irGuardados(): void {
+    this.router.navigate(['/guardados-cliente']);
+  }
+
+  irEstado(): void {
+    this.router.navigate(['/estado-cliente']);
+  }
+
+  irHistorial(): void {
+    this.router.navigate(['/historial-cliente']);
+  }
+
+  irPerfil(): void {
+    this.router.navigate(['/perfil-cliente']);
+  }
+
+  private cargarNotificaciones(): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (!usuario) return;
+    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
+      next: (items: any[]) => {
+        this.itemsNotif = items;
+        this.pendientesResena = items.length;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  marcarLeida(notif: any): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (!usuario) return;
+    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
+    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
+    this.pendientesResena = this.itemsNotif.length;
+    this.cdr.detectChanges();
+  }
+
+  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
+  cerrarNotif(): void { this.notifAbierta = false; }
+  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }

@@ -1,136 +1,490 @@
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: #F4EAEA;
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Mulish:wght@300;400;500;600;700&display=swap');
+
+:root{
+  --bg:#02070d;
+  --panel:#050d15;
+  --input:#0f1c29;
+  --border:rgba(255,255,255,.08);
+
+  /* CELESTE */
+  --orange:#3ba7ff;
+
+  --text:#ffffff;
+
+  /* TEXTOS */
+  --muted:#8bb7db;
 }
 
-
-.container {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  background: #F4EAEA;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-.click {
-  color: #d7af45; 
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:'Mulish',sans-serif;
+  background:#000;
 }
 
-.left-panel {
-  width: 40%;
-  background: linear-gradient(135deg, #7B1E2B, #5A1420);
-  color: white;
-  display: flex;
-  flex-direction: column;
-
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-
-  border-top-right-radius: 300px;
-  border-bottom-right-radius: 300px;
-
-  padding: 60px;
-  padding-bottom: 100px;
-
-  position: relative;
-  z-index: 2;
+body{
+  margin:0;
 }
 
+/* ========================================= */
+/* CONTENEDOR PRINCIPAL */
+/* ========================================= */
 
-.left-panel h1 {
-  font-size: 70px;
-  margin-bottom: 20px;
+.login-wrap{
+  width:100vw;
+  height:100vh;
+
+  display:flex;
+
+  overflow:hidden;
+
+  background:#040b12;
 }
 
-.left-panel p {
-  font-size: 24px;
-  margin-bottom: 30px;
+/* ========================================= */
+/* PANEL IZQUIERDO */
+/* ========================================= */
+
+.login-left{
+  width:55%;
+  height:100%;
+
+  position:relative;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:70px;
+
+  background:
+    radial-gradient(circle at 40% 30%, rgba(59,167,255,.18), transparent 35%),
+    radial-gradient(circle at 60% 70%, rgba(59,167,255,.10), transparent 40%),
+    linear-gradient(180deg,#071826 0%, #06111a 45%, #02070d 100%);
+
+  border-right:1px solid rgba(255,255,255,.05);
 }
 
+.login-left::before{
+  content:'';
+  position:absolute;
+  inset:0;
 
-.btn-outline {
-  padding: 12px 30px;
-  border: 2px solid white;
-  background: transparent;
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-
-  margin-top: 20px; 
-  transition: all 0.3s ease;
+  background:
+    radial-gradient(circle at center,
+    rgba(59,167,255,.10),
+    transparent 60%);
 }
 
-.btn-outline:hover {
-  background: #F4EAEA;
-  color: #7B1E2B;
-  border: 2px solid #F4EAEA;
+.login-left-content{
+  position:relative;
+  z-index:2;
+
+  text-align:center;
+
+  width:100%;
+  max-width:500px;
 }
 
+/* ICONO */
 
-.right-panel {
-  width: 60%;
-  background: #F4EAEA;
-  display: flex;
+.login-icon-ring{
+  width:100px;
+  height:100px;
 
-  justify-content: center;
-  align-items: center;
+  margin:0 auto 40px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border:2px solid rgba(59,167,255,.8);
+
+  background:rgba(59,167,255,.08);
+
+  box-shadow:
+    0 0 30px rgba(59,167,255,.18),
+    inset 0 0 20px rgba(59,167,255,.10);
 }
 
+/* ESTRELLA */
 
-.login-box {
-  width: 380px;
-  text-align: center;
-
-  transform: translateY(-40px);
+.login-icon-ring svg path{
+  fill:#4db5ff !important;
 }
 
+/* LOGO */
 
-.login-box h2 {
-  margin-bottom: 30px;
-  font-size: 60px;
-  font-weight: bold;
+.login-brand{
+  font-family:'Playfair Display',serif;
+  font-size:74px;
+  font-weight:800;
+
+  color:#fff;
+
+  line-height:1;
+
+  margin-bottom:28px;
 }
 
+/* CLICK CELESTE */
 
-.login-box input {
-  width: 100%;
-  padding: 14px;
-  margin: 12px 0;
-  border-radius: 10px;
-  border: 1px solid #d6b5b5;
-  background-color: #FDF6F6;
+.login-brand span{
+  color:var(--orange) !important;
 }
 
+/* TEXTO */
 
-.login-box a {
-  font-size: 13px;
-  display: block;
-  margin: 10px 0;
-  color: #7B1E2B;
+.login-tagline{
+  font-size:18px;
+  line-height:1.5;
+
+  color:rgba(255,255,255,.72);
+
+  margin-bottom:60px;
 }
 
+/* BOTON REGISTRO */
 
-.btn-login {
-  padding: 12px 30px;
-  border: 2px solid #7B1E2B;
-  background: transparent;
-  color: #7B1E2B;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
+.login-new-acc{
+  width:max-content;
+
+  margin:auto;
+
+  padding:20px 38px;
+
+  border-radius:40px;
+
+  border:1px solid rgba(255,255,255,.12);
+
+  background:rgba(255,255,255,.02);
+
+  cursor:pointer;
+
+  transition:.2s;
 }
 
-.btn-login:hover {
-  background: #7B1E2B;
-  color: white;
+.login-new-acc:hover{
+  border-color:rgba(59,167,255,.5);
+  background:rgba(59,167,255,.05);
 }
 
+.login-new-acc span{
+  color:#fff;
 
-.social {
-  margin-top: 15px;
-  font-size: 13px;
-  color: #8a6b6b;
+  font-size:21px;
+  font-weight:700;
+}
+
+/* ========================================= */
+/* PANEL DERECHO */
+/* ========================================= */
+
+.login-right{
+  width:45%;
+  height:100%;
+
+  display:flex;
+  align-items:center;
+
+  justify-content:flex-start;
+
+  /* AZUL OSCURO */
+  background:
+    linear-gradient(
+      180deg,
+      #08131d 0%,
+      #0a1722 40%,
+      #09111a 100%
+    );
+
+  padding:50px 70px 50px 70px;
+}
+
+/* CONTENIDO */
+
+.login-right-inner{
+  width:100%;
+  max-width:620px;
+
+  margin-left:0;
+}
+
+/* TITULO */
+
+.login-title{
+  font-family:'Playfair Display',serif;
+
+  font-size:44px;
+  font-weight:800;
+
+  color:#fff;
+
+  margin-bottom:8px;
+}
+
+/* SUB */
+
+.login-sub{
+  font-size:14px;
+
+  color:#ffffff;
+
+  margin-bottom:28px;
+}
+
+/* GOOGLE */
+
+.social-btn{
+  width:100%;
+  height:54px;
+
+  border-radius:16px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  background:rgba(255,255,255,.02);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+
+  margin-bottom:28px;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.social-btn:hover{
+  border-color:rgba(255,255,255,.15);
+}
+
+.social-btn span{
+  color:#ffffff;
+
+  font-size:16px;
+  font-weight:600;
+}
+
+/* DIVIDER */
+
+.login-divider{
+  display:flex;
+  align-items:center;
+  gap:18px;
+
+  margin-bottom:24px;
+}
+
+.login-divider::before,
+.login-divider::after{
+  content:'';
+
+  flex:1;
+  height:1px;
+
+  background:rgba(255,255,255,.08);
+}
+
+.login-divider span{
+  font-size:11px;
+  font-weight:700;
+
+  letter-spacing:.18em;
+
+  color:#ffffff;
+}
+
+/* LABELS */
+
+.field-label{
+  display:block;
+
+  margin-bottom:8px;
+
+  font-size:11px;
+  font-weight:700;
+
+  letter-spacing:.12em;
+
+  color:#ffffff;
+
+  text-transform:uppercase;
+}
+
+/* INPUTS */
+
+.field{
+  width:100%;
+  height:54px;
+
+  border-radius:16px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  background:#111827;
+
+  display:flex;
+  align-items:center;
+
+  padding:0 20px;
+
+  transition:.2s;
+
+  margin-bottom:16px;
+}
+
+.field:focus-within{
+  border-color:rgba(59,167,255,.6);
+
+  box-shadow:0 0 0 3px rgba(59,167,255,.08);
+}
+
+.field input{
+  width:100%;
+
+  border:none;
+  outline:none;
+
+  background:transparent;
+
+  color:#fff;
+
+  font-size:14px;
+
+  font-family:'Mulish',sans-serif;
+}
+
+.field input::placeholder{
+  color:#bfcfe0;
+}
+
+/* OLVIDASTE */
+
+.forgot{
+  display:flex;
+  justify-content:flex-end;
+
+  margin-top:-2px;
+  margin-bottom:28px;
+}
+
+.forgot span{
+  color:#ffffff;
+
+  font-size:12px;
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+/* BOTON */
+
+.btn-primary{
+  width:100%;
+  height:50px;
+
+  border:none;
+
+  border-radius:14px;
+
+  background:linear-gradient(180deg,#4db5ff 0%, #258fff 100%);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.btn-primary span{
+  color:#000000;
+
+  font-size:15px;
+  font-weight:500;
+}
+
+.btn-primary:hover{
+  opacity:.96;
+  transform:translateY(-1px);
+}
+
+/* MENSAJE */
+
+.login-right p{
+  color:#7dc7ff !important;
+  font-size:13px !important;
+  margin-top:14px !important;
+  text-align:center;
+}
+
+/* ========================================= */
+/* RESPONSIVE */
+/* ========================================= */
+
+@media(max-width:1100px){
+
+  .login-wrap{
+    flex-direction:column;
+  }
+
+  .login-left,
+  .login-right{
+    width:100%;
+  }
+
+  .login-left{
+    min-height:380px;
+  }
+
+  .login-brand{
+    font-size:58px;
+  }
+
+  .login-title{
+    font-size:46px;
+  }
+
+  .login-right{
+    padding:40px;
+    justify-content:center;
+  }
+}
+
+/* =========================================
+   GOOGLE SIGN-IN OVERLAY
+   El overlay cubre el botón visual y
+   contiene el botón real renderizado por
+   Google (casi transparente pero clickeable).
+   ========================================= */
+
+.google-btn-overlay{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  opacity:0.01;
+  cursor:pointer;
+  overflow:hidden;
+  border-radius:16px;
+}
+
+.google-btn-visual{
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  gap:14px;
 }

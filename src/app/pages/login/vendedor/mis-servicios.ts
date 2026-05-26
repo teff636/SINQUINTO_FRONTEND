@@ -38,11 +38,14 @@ export class MisServiciosComponent implements OnInit {
 
   cargarServicios() {
     const usuario = this.authService.getUsuarioLocal();
+
     if (!usuario) {
       this.router.navigate(['/login']);
       return;
     }
+
     this.iniciales = usuario.email?.substring(0, 2).toUpperCase() || 'US';
+
     this.authService.getServiciosPorVendedor(usuario.userId).subscribe({
       next: (data) => {
         this.servicios = [...data];
@@ -64,11 +67,45 @@ export class MisServiciosComponent implements OnInit {
     }
   }
 
-  editar(s: Servicio) { console.log('Editar:', s); }
-  abrirFormulario() { this.mostrarFormulario = true; }
-  onServicioPublicado() { this.cargarServicios(); }
-  cerrarFormulario() { this.mostrarFormulario = false; this.cargarServicios(); }
-  irInicio() { this.router.navigate(['/vendedor']); }
-  irSolicitudes() { this.router.navigate(['/solicitudes-vendedor']); }
-  irPerfil() { this.router.navigate(['/perfil-vendedor']); }
+  editar(s: Servicio) {
+    console.log('Editar:', s);
+  }
+
+  abrirFormulario() {
+    this.mostrarFormulario = true;
+  }
+
+  onServicioPublicado() {
+    this.mostrarFormulario = false;
+    this.cargarServicios();
+  }
+
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
+    this.cargarServicios();
+  }
+
+  formatearPrecio(valor: number): string {
+    return new Intl.NumberFormat('es-CO').format(valor || 0);
+  }
+
+  obtenerIdServicio(s: Servicio): string {
+    return `#SERV-${String(s.serviceOfferId || 0).padStart(3, '0')}`;
+  }
+
+  irInicio() {
+    this.router.navigate(['/vendedor']);
+  }
+
+  irSolicitudes() {
+    this.router.navigate(['/solicitudes-vendedor']);
+  }
+
+  irHistorial() {
+    this.router.navigate(['/historial-vendedor']);
+  }
+
+  irPerfil() {
+    this.router.navigate(['/perfil-vendedor']);
+  }
 }

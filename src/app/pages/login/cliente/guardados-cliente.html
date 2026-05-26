@@ -1,6 +1,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Mulish:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<div class="cliente-page">
+<div class="guardados-page">
 
   <header class="topbar">
     <div class="brand">
@@ -60,51 +60,28 @@
 
       <div class="hero">
         <div>
-          <p class="eyebrow">Explora servicios</p>
-          <h1>Encuentra el servicio ideal</h1>
-          <p class="hero-text">Busca, guarda y solicita servicios profesionales en tu localidad.</p>
+          <p class="eyebrow">Mi colección</p>
+          <h1>Servicios guardados</h1>
+          <p class="hero-text">
+            Aquí están los servicios que guardaste para ver más tarde.
+          </p>
         </div>
 
         <div class="hero-stat">
-          <span>{{ serviciosFiltrados.length }}</span>
-          <small>Servicios disponibles</small>
+          <span>{{ guardados.length }}</span>
+          <small>Guardados</small>
         </div>
-      </div>
-
-      <div class="search-card">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none">
-          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-
-        <input
-          type="text"
-          [(ngModel)]="busqueda"
-          (input)="buscar()"
-          placeholder="Buscar servicios..."
-        >
-      </div>
-
-      <div class="categories">
-        <button
-          type="button"
-          class="cat-chip"
-          *ngFor="let cat of categorias"
-          [class.active]="categoriaActiva === cat"
-          (click)="filtrarCategoria(cat)">
-          {{ cat }}
-        </button>
       </div>
 
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Catálogo</p>
-          <h2>Servicios disponibles</h2>
+          <p class="eyebrow">Colección</p>
+          <h2>Servicios guardados</h2>
         </div>
       </div>
 
-      <div class="services-grid" *ngIf="serviciosFiltrados.length > 0">
-        <article class="service-card" *ngFor="let s of serviciosFiltrados" (click)="verServicio(s)">
+      <div class="services-grid" *ngIf="guardados.length > 0">
+        <article class="service-card" *ngFor="let s of guardados" (click)="verServicio(s)">
 
           <div class="service-image">
             <img *ngIf="s.photo" [src]="s.photo" [alt]="s.title">
@@ -120,12 +97,11 @@
             <span class="category-badge">{{ s.category }}</span>
 
             <button
-              class="save-btn"
+              class="save-btn saved"
               type="button"
-              [class.saved]="estaGuardado(s)"
-              (click)="toggleGuardado(s); $event.stopPropagation()"
-              aria-label="Guardar servicio">
-              {{ estaGuardado(s) ? '♥' : '♡' }}
+              (click)="quitarGuardado(s); $event.stopPropagation()"
+              aria-label="Quitar de guardados">
+              ♥
             </button>
           </div>
 
@@ -161,15 +137,17 @@
         </article>
       </div>
 
-      <div class="empty-state" *ngIf="serviciosFiltrados.length === 0">
+      <div class="empty-state" *ngIf="guardados.length === 0">
         <div class="empty-icon">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="1.7"/>
-            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M20.84 4.61A5.5 5.5 0 0 0 13.06 4.61L12 5.67L10.94 4.61A5.5 5.5 0 1 0 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39A5.5 5.5 0 0 0 20.84 4.61Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h3>No hay servicios disponibles</h3>
-        <p>Prueba con otra categoría o cambia tu búsqueda.</p>
+        <h3>Sin guardados aún</h3>
+        <p>Cuando guardes un servicio, aparecerá aquí.</p>
+        <button class="go-back-btn" type="button" (click)="irInicio()">
+          Explorar servicios
+        </button>
       </div>
 
     </section>
@@ -177,7 +155,7 @@
     <aside class="quick-panel">
       <p class="panel-title">Accesos rápidos</p>
 
-      <button class="quick-card" type="button" (click)="irGuardados()">
+      <button class="quick-card primary" type="button" (click)="irGuardados()">
         <div class="quick-icon">
           <span class="material-icons-outlined">bookmark</span>
         </div>

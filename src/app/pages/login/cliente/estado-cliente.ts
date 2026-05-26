@@ -3,6 +3,19 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
+export interface SolicitudCliente {
+  appointmentId: number;
+  serviceOfferId: number;
+  serviceTitle: string;
+  sellerName: string;
+  category: string;
+  date: string;
+  price: number;
+  status: string;
+}
+
+type FiltroEstado = 'TODAS' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+
 @Component({
   selector: 'app-estado-cliente',
   standalone: true,
@@ -11,9 +24,14 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./estado-cliente.css']
 })
 export class EstadoClienteComponent implements OnInit {
+  iniciales: string = 'CL';
+  cargando: boolean = true;
+  filtroActivo: FiltroEstado = 'TODAS';
+  solicitudes: SolicitudCliente[] = [];
 
-  iniciales: string = '';
-  solicitudes: any[] = [];
+  pendientesResena: number = 0;
+  notifAbierta: boolean = false;
+  itemsNotif: any[] = [];
 
   constructor(
     private router: Router,
@@ -21,43 +39,92 @@ export class EstadoClienteComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.cargarIniciales();
+    this.cargarSolicitudes();
+    this.cargarNotificaciones();
+  }
+
+  cargarIniciales(): void {
+    const raw = localStorage.getItem('usuario');
+    if (!raw) { this.iniciales = 'CL'; return; }
+    try {
+      const u = JSON.parse(raw);
+      this.iniciales = (u?.email || '').substring(0, 2).toUpperCase() || 'CL';
+    } catch { this.iniciales = 'CL'; }
+  }
+
+  cargarSolicitudes(): void {
     const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    this.iniciales = usuario.email?.substring(0, 2).toUpperCase() || 'CL';
-    this.authService.getCitasPorUsuario(usuario.userId).subscribe({
-      next: (data) => {
-        this.solicitudes = [...data];
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.log('Error:', err)
+    if (!usuario) { this.router.navigate(['/login']); return; }
+    this.authService.obtenerSolicitudesCliente(usuario.userId).subscribe({
+      next: (data) => { this.solicitudes = data; this.cargando = false; },
+      error: () => { this.cargando = false; }
     });
   }
 
-  getEstadoLabel(status: string): string {
-    const map: any = {
-      'PENDING': 'En espera',
-      'CONFIRMED': 'Aceptada',
-      'CANCELLED': 'Negada',
-      'COMPLETED': 'Completada'
-    };
-    return map[status] || status;
+  get solicitudesFiltradas(): SolicitudCliente[] {
+    const active = this.solicitudes.filter(s => s.status !== 'COMPLETED');
+    if (this.filtroActivo === 'TODAS') return active;
+    return active.filter(s => s.status === this.filtroActivo);
   }
 
-  getEstadoClass(status: string): string {
-    const map: any = {
-      'PENDING': 'espera',
-      'CONFIRMED': 'aceptada',
-      'CANCELLED': 'negada',
-      'COMPLETED': 'completada'
+  get totalSolicitudes(): number { return this.solicitudes.length; }
+  get pendientes(): number { return this.solicitudes.filter(s => s.status === 'PENDING').length; }
+  get aceptadas(): number { return this.solicitudes.filter(s => s.status === 'ACCEPTED').length; }
+  get finalizadas(): number { return this.solicitudes.filter(s => s.status === 'COMPLETED').length; }
+
+  cambiarFiltro(filtro: FiltroEstado): void { this.filtroActivo = filtro; }
+
+  estadoLabel(status: string): string {
+    const map: Record<string, string> = {
+      PENDING: 'Pendiente', ACCEPTED: 'Aceptada', REJECTED: 'Rechazada',
+      COMPLETED: 'Completada', CONFIRMED: 'Confirmada', CANCELLED: 'Cancelada'
     };
-    return map[status] || '';
+    return map[status] ?? status;
   }
 
-  irInicio() { this.router.navigate(['/cliente']); }
-  irGuardados() { this.router.navigate(['/guardados-cliente']); }
-  irPerfil() { this.router.navigate(['/perfil-cliente']); }
+  estadoDescripcion(status: string): string {
+    const map: Record<string, string> = {
+      PENDING: 'Esperando respuesta del vendedor',
+      ACCEPTED: 'El vendedor aceptó tu solicitud. Prepárate para la cita.',
+      REJECTED: 'El vendedor no pudo aceptar esta solicitud.',
+      COMPLETED: 'Servicio finalizado'
+    };
+    return map[status] ?? '';
+  }
+
+  irInicio(): void { this.router.navigate(['/cliente']); }
+  volverCliente(): void { this.router.navigate(['/cliente']); }
+  irGuardados(): void { this.router.navigate(['/guardados-cliente']); }
+  irEstado(): void { this.router.navigate(['/estado-cliente']); }
+  irHistorial(): void { this.router.navigate(['/historial-cliente']); }
+  irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
+  verSolicitud(solicitud: SolicitudCliente): void { console.log('Solicitud:', solicitud); }
+
+  private cargarNotificaciones(): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (!usuario) return;
+    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
+      next: (items: any[]) => {
+        this.itemsNotif = items;
+        this.pendientesResena = items.length;
+        this.cdr.detectChanges();
+      },
+      error: () => {}
+    });
+  }
+
+  marcarLeida(notif: any): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (!usuario) return;
+    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
+    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
+    this.pendientesResena = this.itemsNotif.length;
+    this.cdr.detectChanges();
+  }
+
+  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
+  cerrarNotif(): void { this.notifAbierta = false; }
+  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }

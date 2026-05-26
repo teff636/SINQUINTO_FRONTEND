@@ -1,24 +1,45 @@
-<div class="container">
+<div class="publish-container">
 
-  <h2>Nueva publicación</h2>
+  <div class="publish-header">
+    <div>
+      <p class="publish-kicker">Nueva publicación</p>
+      <h2>Publicar servicio</h2>
+      <span>Crea una oferta clara para que los clientes puedan encontrarte.</span>
+    </div>
+  </div>
 
   <!-- TITULO -->
-  <div class="card">
-    <p class="paso">PASO 1 — TÍTULO</p>
-    <p>¿Cómo se llama tu servicio?</p>
+  <div class="publish-card">
+    <div class="step-head">
+      <span class="step-number">1</span>
+      <div>
+        <p class="step-label">Paso 1 — Título</p>
+        <h3>¿Cómo se llama tu servicio?</h3>
+      </div>
+    </div>
+
     <input
       type="text"
       [(ngModel)]="titulo"
       placeholder="Ej: Reparación de computadores"
-      style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+      class="field-input"
+    />
   </div>
 
   <!-- CATEGORIA -->
-  <div class="card">
-    <p class="paso">PASO 2 — CATEGORÍA</p>
-    <p>¿Qué tipo de servicio ofreces?</p>
+  <div class="publish-card">
+    <div class="step-head">
+      <span class="step-number">2</span>
+      <div>
+        <p class="step-label">Paso 2 — Categoría</p>
+        <h3>Selecciona el tipo de servicio</h3>
+      </div>
+    </div>
+
     <div class="categorias">
-      <button *ngFor="let cat of categorias"
+      <button
+        *ngFor="let cat of categorias"
+        type="button"
         (click)="seleccionarCategoria(cat)"
         [class.activa]="categoriaSeleccionada === cat">
         {{ cat }}
@@ -27,39 +48,79 @@
   </div>
 
   <!-- DESCRIPCION -->
-  <div class="card">
-    <p class="paso">PASO 3 — DESCRIPCIÓN</p>
-    <p>Cuéntanos sobre tu servicio</p>
-    <textarea [(ngModel)]="descripcion"></textarea>
+  <div class="publish-card">
+    <div class="step-head">
+      <span class="step-number">3</span>
+      <div>
+        <p class="step-label">Paso 3 — Descripción</p>
+        <h3>Cuéntanos sobre tu servicio</h3>
+      </div>
+    </div>
+
+    <textarea
+      [(ngModel)]="descripcion"
+      placeholder="Describe qué haces, qué incluye el servicio y qué te diferencia..."
+    ></textarea>
   </div>
 
   <!-- FOTOS -->
-  <div class="card">
-    <p class="paso">PASO 4 — FOTOS</p>
+  <div class="publish-card">
+    <div class="step-head">
+      <span class="step-number">4</span>
+      <div>
+        <p class="step-label">Paso 4 — Imagen</p>
+        <h3>Agrega una foto del servicio</h3>
+      </div>
+    </div>
+
     <label class="upload">
-      📷 <span>Toca para subir imágenes</span>
-      <input type="file" multiple (change)="onFileSelected($event)">
+      <div class="camera-bubble">
+        <span class="material-icons-outlined">photo_camera</span>
+      </div>
+
+      <div>
+        <strong>Subir imagen</strong>
+        <p>Toca aquí para seleccionar una foto</p>
+      </div>
+
+      <input type="file" accept="image/*" (change)="onFileSelected($event)">
     </label>
-    <img *ngIf="imagenBase64" [src]="imagenBase64"
-      style="width:100%; margin-top:10px; border-radius:8px;">
+
+    <div class="preview" *ngIf="imagenBase64">
+      <img [src]="imagenBase64" alt="Vista previa del servicio">
+    </div>
   </div>
 
   <!-- PRECIO -->
-  <div class="card">
-    <p class="paso">PASO 5 — PRECIO</p>
+  <div class="publish-card">
+    <div class="step-head">
+      <span class="step-number">5</span>
+      <div>
+        <p class="step-label">Paso 5 — Precio</p>
+        <h3>Define el valor del servicio</h3>
+      </div>
+    </div>
+
     <div class="precio">
-      <span class="peso">$</span>
-      <input
-        type="text"
-        [(ngModel)]="precio"
-        (input)="formatearPrecio()"
-        placeholder="0">
+      <div class="input-precio">
+        <span>$</span>
+        <input
+          type="text"
+          [(ngModel)]="precio"
+          (input)="formatearPrecio()"
+          placeholder="0"
+        />
+      </div>
+
       <button
+        type="button"
         (click)="tipoCobro='sesion'"
         [class.activo]="tipoCobro==='sesion'">
         / sesión
       </button>
+
       <button
+        type="button"
         (click)="tipoCobro='hora'"
         [class.activo]="tipoCobro==='hora'">
         / hora
@@ -68,25 +129,37 @@
   </div>
 
   <!-- ERROR -->
-  <p *ngIf="mensajeError" style="color:red; text-align:center;">
+  <p *ngIf="mensajeError" class="error-message">
     {{ mensajeError }}
   </p>
 
-  <button class="publicar" (click)="publicar()">
+  <button class="publicar" type="button" (click)="publicar()">
     Publicar servicio
   </button>
 
 </div>
 
 <!-- MODAL ÉXITO -->
-<div class="modal" *ngIf="mostrarModal">
-  <div class="modal-content">
-    <h3>¡Felicidades!</h3>
-    <p>Tu servicio ha sido publicado correctamente</p>
-    <p class="pregunta">¿Quieres agregar otro servicio?</p>
-    <div class="acciones">
-      <button class="btn-si" (click)="publicarOtro()">Sí</button>
-      <button class="btn-no" (click)="irInicio()">No</button>
+<div class="success-overlay" *ngIf="mostrarModal">
+  <div class="success-box">
+    <div class="success-icon">
+      <span class="material-icons-outlined">check</span>
     </div>
+
+    <h3>¡Publicado!</h3>
+    <p>Tu servicio ya está visible para los clientes en la plataforma.</p>
+
+    <div class="success-summary">
+      <strong>{{ titulo }}</strong>
+      <span>{{ categoriaSeleccionada }} · ${{ precio }} / {{ tipoCobro }}</span>
+    </div>
+
+    <button class="success-primary" type="button" (click)="irInicio()">
+      Ver mis servicios
+    </button>
+
+    <button class="success-secondary" type="button" (click)="publicarOtro()">
+      Publicar otro
+    </button>
   </div>
 </div>

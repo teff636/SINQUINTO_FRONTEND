@@ -1,70 +1,243 @@
-<div class="container">
+<div class="requests-page">
 
   <header class="topbar">
-    <h1>Servi<span class="click">Click</span></h1>
-    <div class="profile">{{ iniciales }}</div>
+    <div class="logo">Servi<span>Click</span></div>
+
+    <div class="top-actions">
+      <button class="icon-btn" type="button" aria-label="Notificaciones">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button class="home-link" type="button" (click)="irInicio()">
+        <span class="material-icons-outlined">home</span>
+        <span>Inicio</span>
+      </button>
+
+      <button class="avatar" type="button" (click)="irPerfil()">
+        {{ iniciales }}
+      </button>
+    </div>
   </header>
 
-  <div class="title-section">
-    <h2>Solicitudes de Servicio</h2>
-  </div>
+  <div class="dashboard-layout">
 
-  <div class="solicitudes-container">
+    <main class="content">
 
-    <div class="solicitud-card" *ngFor="let s of solicitudes">
-
-      <div class="solicitud-top">
-
-        <div class="cliente-info">
-          <div class="avatar-cliente">
-            {{ s.userId }}
-          </div>
-          <div>
-            <h3>Usuario #{{ s.userId }}</h3>
-            <p>Servicio #{{ s.serviceOfferId }}</p>
-          </div>
+      <section class="page-head">
+        <div>
+          <p class="page-kicker">Gestión del vendedor</p>
+          <h1>Solicitudes</h1>
+          <span>Revisa y gestiona las solicitudes que llegan a tus publicaciones.</span>
         </div>
 
-        <span
-          class="estado"
-          [class.pendiente]="s.status === 'PENDING'"
-          [class.aceptada]="s.status === 'CONFIRMED'"
-          [class.rechazada]="s.status === 'CANCELLED'">
-          {{ s.status }}
-        </span>
+        <div class="stats-panel">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <span class="material-icons-outlined">assignment</span>
+            </div>
+            <div>
+              <p>Pendientes</p>
+              <strong>{{ pendientes }}</strong>
+            </div>
+          </div>
 
-      </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <span class="material-icons-outlined">check_circle</span>
+            </div>
+            <div>
+              <p>Aceptadas</p>
+              <strong>{{ aceptadas }}</strong>
+            </div>
+          </div>
 
-      <div class="mensaje-box">
-        Fecha: {{ s.date | date:'short' }}
-      </div>
+          <div class="stat-item">
+            <div class="stat-icon danger">
+              <span class="material-icons-outlined">cancel</span>
+            </div>
+            <div>
+              <p>Rechazadas</p>
+              <strong>{{ rechazadas }}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div class="acciones" *ngIf="s.status === 'PENDING'">
-        <button class="btn-aceptar" (click)="aceptar(s)">✓ Aceptar</button>
-        <button class="btn-rechazar" (click)="rechazar(s)">✕ Negar</button>
-      </div>
+      <section class="empty-state" *ngIf="cargando">
+        <span class="material-icons-outlined">hourglass_empty</span>
+        <h2>Cargando solicitudes...</h2>
+      </section>
 
-    </div>
+      <section class="empty-state" *ngIf="!cargando && solicitudes.length === 0">
+        <span class="material-icons-outlined">inbox</span>
+        <h2>No tienes solicitudes todavía</h2>
+        <p>Cuando un cliente solicite uno de tus servicios, aparecerá aquí.</p>
+        <button type="button" (click)="irServicios()">Ver mis servicios</button>
+      </section>
+
+      <section class="requests-list" *ngIf="!cargando && solicitudes.length > 0">
+
+        <article class="request-card" *ngFor="let s of solicitudes">
+
+          <div class="client-badge">
+            {{ inicialCliente(s.customerName) }}
+          </div>
+
+          <div class="request-main">
+
+            <div class="request-title-row">
+              <div>
+                <h2>{{ s.serviceTitle }}</h2>
+                <p>{{ s.customerName }} · {{ s.customerEmail }}</p>
+              </div>
+
+              <span
+                class="status"
+                [class.pending]="s.status === 'PENDING'"
+                [class.accepted]="s.status === 'ACCEPTED'"
+                [class.rejected]="s.status === 'REJECTED'"
+                [class.completed]="s.status === 'COMPLETED'">
+                {{ estadoTexto(s.status) }}
+              </span>
+            </div>
+
+            <div class="meta-grid">
+              <div class="meta-item">
+                <span class="material-icons-outlined">person</span>
+                <div>
+                  <p>Cliente</p>
+                  <strong>{{ s.customerName }}</strong>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="material-icons-outlined">calendar_month</span>
+                <div>
+                  <p>Fecha</p>
+                  <strong>{{ s.date | date:'dd/MM/yyyy' }}</strong>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="material-icons-outlined">schedule</span>
+                <div>
+                  <p>Hora</p>
+                  <strong>{{ s.date | date:'shortTime' }}</strong>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="material-icons-outlined">sell</span>
+                <div>
+                  <p>Precio</p>
+                  <strong>$ {{ s.price }}</strong>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="material-icons-outlined">email</span>
+                <div>
+                  <p>Correo</p>
+                  <strong>{{ s.customerEmail }}</strong>
+                </div>
+              </div>
+
+              <div class="meta-item">
+                <span class="material-icons-outlined">tag</span>
+                <div>
+                  <p>ID solicitud</p>
+                  <strong>#SOL-{{ s.appointmentId }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="request-footer">
+              <div class="request-id">
+                ID <strong>#SOL-{{ s.appointmentId }}</strong>
+              </div>
+
+              <div class="actions">
+                <ng-container *ngIf="s.status === 'PENDING'">
+                  <button class="reject" type="button" (click)="rechazar(s)">Rechazar</button>
+                  <button class="accept" type="button" (click)="aceptar(s)">Aceptar</button>
+                </ng-container>
+
+                <ng-container *ngIf="s.status === 'ACCEPTED'">
+                  <button
+                    class="finalizar"
+                    type="button"
+                    [disabled]="!esFechaHabilitable(s.date)"
+                    [title]="esFechaHabilitable(s.date) ? 'Marcar como realizado' : 'Disponible el día del servicio'"
+                    (click)="finalizar(s)">
+                    <span class="material-icons-outlined">check_circle</span>
+                    {{ esFechaHabilitable(s.date) ? 'Realizado' : 'Disponible el día del servicio' }}
+                  </button>
+                </ng-container>
+
+                <ng-container *ngIf="s.status === 'REJECTED'">
+                  <button class="pending" type="button" (click)="marcarPendiente(s)">
+                    Reabrir solicitud
+                  </button>
+                </ng-container>
+
+                <ng-container *ngIf="s.status === 'COMPLETED'">
+                  <span class="completed-label">
+                    <span class="material-icons-outlined">done_all</span>
+                    Servicio finalizado
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+
+    </main>
+
+    <!-- PANEL LATERAL DERECHO -->
+    <aside class="quick-panel">
+      <p class="panel-title">Accesos rápidos</p>
+
+      <button class="quick-card" type="button" (click)="irMisServicios()">
+        <div class="quick-icon">
+          <span class="material-icons-outlined">store</span>
+        </div>
+        <div>
+          <h3>Mis servicios</h3>
+          <p>Gestiona tus publicaciones</p>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+
+      <button class="quick-card primary" type="button" (click)="irSolicitudes()">
+        <div class="quick-icon">
+          <span class="material-icons-outlined">assignment</span>
+        </div>
+        <div>
+          <h3>Solicitudes</h3>
+          <p>Acepta o rechaza solicitudes</p>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+
+      <button class="quick-card" type="button" (click)="irHistorial()">
+        <div class="quick-icon">
+          <span class="material-icons-outlined">history</span>
+        </div>
+        <div>
+          <h3>Historial</h3>
+          <p>Servicios completados</p>
+        </div>
+        <span class="arrow">›</span>
+      </button>
+    </aside>
 
   </div>
-
-  <footer class="bottom-nav">
-    <div (click)="irInicio()">
-      <span class="material-icons-outlined">home</span>
-      <span>Inicio</span>
-    </div>
-    <div (click)="irServicios()">
-      <span class="material-icons-outlined">tune</span>
-      <span>Servicios</span>
-    </div>
-    <div class="active">
-      <span class="material-icons-outlined">assignment</span>
-      <span>Solicitudes</span>
-    </div>
-    <div (click)="irPerfil()">
-      <span class="material-icons-outlined">person</span>
-      <span>Perfil</span>
-    </div>
-  </footer>
 
 </div>

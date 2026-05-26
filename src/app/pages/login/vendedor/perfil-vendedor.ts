@@ -18,16 +18,27 @@ export class PerfilVendedorComponent implements OnInit {
   apellido: string = '';
   correo: string = '';
   telefono: string = '';
+
   modoEdicion: boolean = false;
   mensajeExito: string = '';
   mensajeError: string = '';
+
   mostrarModalContrasena: boolean = false;
   contrasenaConfirmacion: string = '';
   errorContrasena: string = '';
 
+  totalServicios: number = 0;
+  ratingPromedio: string = '0.0';
+  totalClientes: number = 0;
+
   get iniciales(): string {
     const texto = this.nombreCompleto || this.correo || 'US';
     return texto.substring(0, 2).toUpperCase();
+  }
+
+  get nombreMostrado(): string {
+    const nombre = `${this.nombreCompleto || ''} ${this.apellido || ''}`.trim();
+    return nombre || this.correo || 'Vendedor';
   }
 
   constructor(
@@ -38,11 +49,14 @@ export class PerfilVendedorComponent implements OnInit {
 
   ngOnInit() {
     const usuario = this.authService.getUsuarioLocal();
+
     if (!usuario) {
       this.router.navigate(['/login']);
       return;
     }
+
     this.userId = Number(usuario.userId);
+
     this.authService.getUsuarioPorId(this.userId).subscribe({
       next: (data: any) => {
         this.nombreCompleto = data.name || '';
@@ -53,9 +67,22 @@ export class PerfilVendedorComponent implements OnInit {
       },
       error: (err) => console.log('Error cargando perfil:', err)
     });
+
+    this.authService.getServiciosPorVendedor(this.userId).subscribe({
+      next: (servicios: any[]) => {
+        this.totalServicios = servicios.length;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.totalServicios = 0;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
-  activarEdicion() { this.modoEdicion = true; }
+  activarEdicion() {
+    this.modoEdicion = true;
+  }
 
   cancelarEdicion() {
     this.modoEdicion = false;
@@ -79,6 +106,7 @@ export class PerfilVendedorComponent implements OnInit {
       this.errorContrasena = 'Ingresa tu contraseña';
       return;
     }
+
     this.authService.login({
       email: this.correo,
       password: this.contrasenaConfirmacion
@@ -95,6 +123,7 @@ export class PerfilVendedorComponent implements OnInit {
 
   guardarCambios() {
     const usuario = this.authService.getUsuarioLocal();
+
     const data = {
       userId: this.userId,
       name: this.nombreCompleto,
@@ -103,16 +132,23 @@ export class PerfilVendedorComponent implements OnInit {
       phoneNumber: this.telefono,
       role: usuario?.role
     };
+
     this.authService.actualizarUsuario(data).subscribe({
       next: () => {
         this.modoEdicion = false;
         this.mensajeExito = 'Datos actualizados correctamente';
+        this.mensajeError = '';
         this.cdr.detectChanges();
-        setTimeout(() => { this.mensajeExito = ''; this.cdr.detectChanges(); }, 3000);
+
+        setTimeout(() => {
+          this.mensajeExito = '';
+          this.cdr.detectChanges();
+        }, 3000);
       },
       error: (err) => {
         console.log(err);
         this.mensajeError = 'Error al actualizar los datos';
+        this.mensajeExito = '';
       }
     });
   }
@@ -122,7 +158,19 @@ export class PerfilVendedorComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  irInicio() { this.router.navigate(['/vendedor']); }
-  irServicios() { this.router.navigate(['/mis-servicios']); }
-  irSolicitudes() { this.router.navigate(['/solicitudes-vendedor']); }
+  irInicio() {
+    this.router.navigate(['/vendedor']);
+  }
+
+  irServicios() {
+    this.router.navigate(['/mis-servicios']);
+  }
+
+  irSolicitudes() {
+    this.router.navigate(['/solicitudes-vendedor']);
+  }
+
+  irHistorial() {
+    this.router.navigate(['/historial-vendedor']);
+  }
 }
