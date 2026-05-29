@@ -247,11 +247,11 @@ html, body {
 .role-tab.active {
   background: linear-gradient(180deg, #4db5ff 0%, #258fff 100%);
   border-color: #4db5ff;
-  color: #08111b;
+  color: #000;
 }
 
 .role-tab.active span {
-  color: #08111b;
+  color: #000;
   font-weight: 700;
 }
 
@@ -343,7 +343,7 @@ html, body {
 }
 
 .btn-primary span {
-  color: #06111a;
+  color: #000;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: .03em;

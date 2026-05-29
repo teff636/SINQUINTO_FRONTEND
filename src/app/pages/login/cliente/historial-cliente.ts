@@ -1,8 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { ClientQuickPanelComponent } from '../../../shared/client-quick-panel/client-quick-panel';
 
 interface SolicitudCompletada {
   appointmentId: number;
@@ -19,11 +22,11 @@ interface SolicitudCompletada {
 @Component({
   selector: 'app-historial-cliente',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AppTopbarComponent, ClientQuickPanelComponent],
   templateUrl: './historial-cliente.html',
   styleUrls: ['./historial-cliente.css']
 })
-export class HistorialClienteComponent implements OnInit {
+export class HistorialClienteComponent implements OnInit, OnDestroy {
 
   iniciales: string = 'CL';
   cargando: boolean = true;
@@ -39,20 +42,27 @@ export class HistorialClienteComponent implements OnInit {
 
   estrellas = [1, 2, 3, 4, 5];
 
-  pendientesResena: number = 0;
   notifAbierta: boolean = false;
-  itemsNotif: any[] = [];
+
+  get pendientesResena(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService
   ) {}
 
   ngOnInit(): void {
     this.cargarIniciales();
     this.cargarHistorial();
-    this.cargarNotificaciones();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   private cargarIniciales(): void {
@@ -70,7 +80,6 @@ export class HistorialClienteComponent implements OnInit {
     this.authService.obtenerHistorialCliente(usuario.userId).subscribe({
       next: (data: any[]) => {
         this.historial = (data || []).filter((s: any) => s.status === 'COMPLETED');
-        this.actualizarNotificaciones();
         this.cargando = false;
         this.cdr.detectChanges();
       },
@@ -78,7 +87,6 @@ export class HistorialClienteComponent implements OnInit {
         this.authService.obtenerSolicitudesCliente(usuario.userId).subscribe({
           next: (data2: any[]) => {
             this.historial = (data2 || []).filter((s: any) => s.status === 'COMPLETED');
-            this.actualizarNotificaciones();
             this.cargando = false;
             this.cdr.detectChanges();
           },
@@ -88,47 +96,24 @@ export class HistorialClienteComponent implements OnInit {
     });
   }
 
-  private cargarNotificaciones(): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
-      next: (items: any[]) => {
-        this.itemsNotif = items;
-        this.pendientesResena = items.length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
+  manejarNotificacion(n: Notificacion): void {
+    this.notifService.marcarLeida(n, () => {
+      if (n.type === 'APPOINTMENT_COMPLETED') {
+        this.notifAbierta = false;
+        if (n.appointmentId) {
+          const item = this.historial.find(h => h.appointmentId === n.appointmentId);
+          if (item && !item.hasRating) this.abrirModal(item);
+        }
+      } else if (n.type === 'APPOINTMENT_ACCEPTED' || n.type === 'APPOINTMENT_REJECTED') {
+        this.notifAbierta = false;
+        this.router.navigate(['/estado-cliente']);
+      }
     });
   }
 
-  private actualizarNotificaciones(): void {
-    if (this.solicitudActual) {
-      this.itemsNotif = this.itemsNotif.filter((n: any) => n.appointmentId !== this.solicitudActual!.appointmentId);
-      this.pendientesResena = this.itemsNotif.length;
-    }
-  }
-
-  marcarLeida(notif: any): void {
+  marcarTodasLeidas(): void {
     const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
-    this.itemsNotif = this.itemsNotif.filter((n: any) => n.key !== notif.key);
-    this.pendientesResena = this.itemsNotif.length;
-    this.cdr.detectChanges();
-  }
-
-  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
-  cerrarNotif(): void { this.notifAbierta = false; }
-
-  irAResena(n?: any): void {
-    this.notifAbierta = false;
-    if (!n) return;
-    if (n.tipo === 'RESENA') {
-      const item = this.historial.find(h => h.appointmentId === n.appointmentId);
-      if (item) this.abrirModal(item);
-    } else if (n.appointmentId && !n.tipo) {
-      this.abrirModal(n as SolicitudCompletada);
-    }
+    if (usuario) this.notifService.marcarTodas(usuario.userId);
   }
 
   abrirModal(s: SolicitudCompletada): void {
@@ -175,7 +160,6 @@ export class HistorialClienteComponent implements OnInit {
           this.solicitudActual.hasRating = true;
           const item = this.historial.find(h => h.appointmentId === this.solicitudActual!.appointmentId);
           if (item) item.hasRating = true;
-          this.actualizarNotificaciones();
         }
         this.mensajeExito = '¡Reseña enviada correctamente!';
         this.enviando = false;
@@ -209,4 +193,8 @@ export class HistorialClienteComponent implements OnInit {
   irEstado(): void { this.router.navigate(['/estado-cliente']); }
   irHistorial(): void { this.router.navigate(['/historial-cliente']); }
   irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
+
+  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
+  cerrarNotif(): void { this.notifAbierta = false; }
 }
+

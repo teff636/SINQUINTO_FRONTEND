@@ -507,7 +507,7 @@ h2 {
 .time-chip.selected {
   background: linear-gradient(135deg, #28adff, #0077dd);
   border-color: rgba(66, 188, 255, 0.95);
-  color: #00111e;
+  color: #000;
   box-shadow: 0 0 24px rgba(31, 168, 255, 0.22);
 }
 
@@ -558,7 +558,7 @@ h2 {
   border: 0;
   border-radius: 17px;
   background: linear-gradient(135deg, #28adff, #0077dd);
-  color: #00111e;
+  color: #000;
   cursor: pointer;
   font-family: 'Mulish', sans-serif;
   font-weight: 1000;
@@ -778,7 +778,7 @@ h2 {
 
 ::ng-deep .mat-calendar-body-selected {
   background-color: #28adff !important;
-  color: #00111e !important;
+  color: #000 !important;
 }
 
 ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
@@ -863,3 +863,58 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+/* NOTIFICATION - nuevos estilos para dropdown real */
+
+.notif-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notif-mark-all-btn {
+  background: transparent;
+  border: none;
+  color: #3ba7ff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.notif-mark-all-btn:hover { text-decoration: underline; }
+
+.notif-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.notif-msg {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #8bb7db;
+}
+
+.notif-date {
+  margin: 0 0 8px;
+  font-size: 11px;
+  color: #8bb7db;
+}
+
+.notif-action-btn {
+  background: rgba(59, 167, 255, .12);
+  border: 1px solid rgba(59, 167, 255, .3);
+  color: #3ba7ff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .18s ease;
+  font-family: inherit;
+  margin-top: 6px;
+}
+
+.notif-action-btn:hover { background: rgba(59, 167, 255, .22); }

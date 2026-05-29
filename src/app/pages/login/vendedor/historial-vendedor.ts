@@ -1,7 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { VendorNavigationService } from '../../../core/services/vendor-navigation.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { VendorQuickPanelComponent } from '../../../shared/vendor-quick-panel/vendor-quick-panel';
 
 export interface SolicitudCompletada {
   appointmentId: number;
@@ -17,20 +21,27 @@ export interface SolicitudCompletada {
 @Component({
   selector: 'app-historial-vendedor',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppTopbarComponent, VendorQuickPanelComponent],
   templateUrl: './historial-vendedor.html',
   styleUrls: ['./historial-vendedor.css']
 })
-export class HistorialVendedorComponent implements OnInit {
+export class HistorialVendedorComponent implements OnInit, OnDestroy {
 
   iniciales: string = '';
   historial: SolicitudCompletada[] = [];
   cargando: boolean = true;
 
+  notifAbierta: boolean = false;
+
+  get notifCount(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
+
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService,
+    private readonly vendorNav: VendorNavigationService
   ) {}
 
   ngOnInit() {
@@ -38,6 +49,11 @@ export class HistorialVendedorComponent implements OnInit {
     if (!usuario) { this.router.navigate(['/login']); return; }
     this.iniciales = usuario.email?.substring(0, 2).toUpperCase() || 'US';
     this.cargarHistorial(usuario.userId);
+    this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   cargarHistorial(sellerId: number) {
@@ -59,9 +75,19 @@ export class HistorialVendedorComponent implements OnInit {
     return (nombre || 'CL').substring(0, 2).toUpperCase();
   }
 
-  irInicio() { this.router.navigate(['/vendedor']); }
-  irMisServicios() { this.router.navigate(['/mis-servicios']); }
-  irSolicitudes() { this.router.navigate(['/solicitudes-vendedor']); }
-  irHistorial() { this.router.navigate(['/historial-vendedor']); }
-  irPerfil() { this.router.navigate(['/perfil-vendedor']); }
+  manejarNotificacion(n: Notificacion): void {
+    this.vendorNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
+  }
+
+  marcarTodasLeidas(): void { this.vendorNav.marcarTodasLeidas(); }
+
+  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
+  cerrarNotif(): void { this.notifAbierta = false; }
+
+  irInicio() { this.vendorNav.irInicio(); }
+  irMisServicios() { this.vendorNav.irMisServicios(); }
+  irSolicitudes() { this.vendorNav.irSolicitudes(); }
+  irHistorial() { this.vendorNav.irHistorial(); }
+  irPerfil() { this.vendorNav.irPerfil(); }
 }
+

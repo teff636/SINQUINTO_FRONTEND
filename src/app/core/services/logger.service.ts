@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export type LogLevel = 'INFO' | 'ERROR' | 'WARN' | 'NAV';
 
@@ -15,11 +16,11 @@ export interface LogEntry {
 @Injectable({ providedIn: 'root' })
 export class LoggerService {
   private logs: LogEntry[] = [];
-  private apiUrl = 'http://localhost:8080/api/logs';
+  private apiUrl = `${environment.apiUrl}/api/logs`;
   private buffer: LogEntry[] = [];
   private flushInterval = 5000;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private readonly httpClient: HttpClient) {
     setInterval(() => this.flush(), this.flushInterval);
   }
 
@@ -39,9 +40,7 @@ export class LoggerService {
     if (this.buffer.length === 0) return;
     const toSend = [...this.buffer];
     this.buffer = [];
-    this.httpClient.post(this.apiUrl, toSend).subscribe({
-      error: () => console.warn('No se pudieron enviar los logs al backend')
-    });
+    this.httpClient.post(this.apiUrl, toSend).subscribe({ error: () => {} });
   }
 
   loadLogsFromServer(): Observable<LogEntry[]> {

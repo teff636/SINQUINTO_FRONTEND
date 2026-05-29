@@ -1,8 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { ClientNavigationService } from '../../../core/services/client-navigation.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { ClientQuickPanelComponent } from '../../../shared/client-quick-panel/client-quick-panel';
 
 export interface Servicio {
   serviceOfferId: number;
@@ -19,20 +23,21 @@ export interface Servicio {
 @Component({
   selector: 'app-cliente',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AppTopbarComponent, ClientQuickPanelComponent],
   templateUrl: './cliente.html',
   styleUrls: ['./cliente.css']
 })
-export class ClienteComponent implements OnInit {
+export class ClienteComponent implements OnInit, OnDestroy {
   iniciales: string = '';
 
   servicios: Servicio[] = [];
   serviciosFiltrados: Servicio[] = [];
   guardados: Servicio[] = [];
 
-  pendientesResena: number = 0;
   notifAbierta: boolean = false;
-  itemsNotif: any[] = [];
+
+  get pendientesResena(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
 
   categoriaActiva: string = 'Todos';
   busqueda: string = '';
@@ -50,16 +55,23 @@ export class ClienteComponent implements OnInit {
   private readonly STORAGE_GUARDADOS = 'servicios_guardados_cliente';
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService,
+    private readonly clientNav: ClientNavigationService
   ) {}
 
   ngOnInit(): void {
     this.cargarUsuario();
     this.cargarGuardados();
     this.cargarServicios();
-    this.cargarNotificaciones();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   private cargarUsuario(): void {
@@ -84,8 +96,7 @@ export class ClienteComponent implements OnInit {
 
     try {
       this.guardados = JSON.parse(data) as Servicio[];
-    } catch (error) {
-      console.error('Error al leer servicios guardados:', error);
+    } catch {
       this.guardados = [];
       localStorage.removeItem(this.STORAGE_GUARDADOS);
     }
@@ -104,8 +115,7 @@ export class ClienteComponent implements OnInit {
         this.servicios = [...data];
         this.aplicarFiltros();
       },
-      error: (err) => {
-        console.error('Error al cargar servicios:', err);
+      error: () => {
         this.servicios = [];
         this.serviciosFiltrados = [];
         this.cdr.detectChanges();
@@ -152,7 +162,7 @@ export class ClienteComponent implements OnInit {
       .trim()
       .toLowerCase()
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .replace(/[̀-ͯ]/g, '');
   }
 
   toggleGuardado(servicio: Servicio): void {
@@ -182,49 +192,22 @@ export class ClienteComponent implements OnInit {
     });
   }
 
-  irInicio(): void {
-    this.router.navigate(['/cliente']);
+  manejarNotificacion(n: Notificacion): void {
+    this.clientNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
   }
 
-  irGuardados(): void {
-    this.router.navigate(['/guardados-cliente']);
-  }
-
-  irEstado(): void {
-    this.router.navigate(['/estado-cliente']);
-  }
-
-  irHistorial(): void {
-    this.router.navigate(['/historial-cliente']);
-  }
-
-  irPerfil(): void {
-    this.router.navigate(['/perfil-cliente']);
-  }
-
-  private cargarNotificaciones(): void {
+  marcarTodasLeidas(): void {
     const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
-      next: (items: any[]) => {
-        this.itemsNotif = items;
-        this.pendientesResena = items.length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
+    if (usuario) this.notifService.marcarTodas(usuario.userId);
   }
 
-  marcarLeida(notif: any): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
-    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
-    this.pendientesResena = this.itemsNotif.length;
-    this.cdr.detectChanges();
-  }
+  irInicio(): void { this.router.navigate(['/cliente']); }
+  irGuardados(): void { this.router.navigate(['/guardados-cliente']); }
+  irEstado(): void { this.router.navigate(['/estado-cliente']); }
+  irHistorial(): void { this.router.navigate(['/historial-cliente']); }
+  irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
 
   toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
   cerrarNotif(): void { this.notifAbierta = false; }
-  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }
+

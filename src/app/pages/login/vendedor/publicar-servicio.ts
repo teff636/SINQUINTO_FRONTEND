@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+﻿import { Component, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -36,8 +36,8 @@ export class PublicarServicioComponent {
   ];
 
   constructor(
-    private router: Router,
-    private authService: AuthService
+    private readonly router: Router,
+    private readonly authService: AuthService
   ) {}
 
   seleccionarCategoria(cat: string) {
@@ -97,13 +97,11 @@ export class PublicarServicioComponent {
 
     this.authService.crearServicio(nuevoServicio).subscribe({
       next: () => {
-        console.log('Servicio guardado en BD');
         this.mostrarModal = true;
         // Avisar al componente padre que se publicó un servicio nuevo
         this.servicioPublicado.emit();
       },
-      error: (err) => {
-        console.log(err);
+      error: () => {
         this.mensajeError = 'Error al publicar el servicio';
       }
     });
@@ -125,3 +123,4 @@ irInicio() {
   this.cerrar.emit();
 }
 }
+

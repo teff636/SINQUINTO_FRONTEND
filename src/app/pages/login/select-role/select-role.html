@@ -63,14 +63,14 @@
 
     <!-- SELECTOR DE ROL -->
     <div class="role-tabs">
-      <div class="role-tab" [class.active]="rol === 'CUSTOMER'" (click)="rol = 'CUSTOMER'">
+      <div class="role-tab" [class.active]="rol === 'CUSTOMER'" tabindex="0" role="button" (click)="rol = 'CUSTOMER'" (keydown.enter)="rol = 'CUSTOMER'" (keydown.space)="rol = 'CUSTOMER'; $event.preventDefault()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
           <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <span>Cliente</span>
       </div>
-      <div class="role-tab" [class.active]="rol === 'SALESPERSON'" (click)="rol = 'SALESPERSON'">
+      <div class="role-tab" [class.active]="rol === 'SALESPERSON'" tabindex="0" role="button" (click)="rol = 'SALESPERSON'" (keydown.enter)="rol = 'SALESPERSON'" (keydown.space)="rol = 'SALESPERSON'; $event.preventDefault()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="currentColor" stroke-width="2"/>
           <path d="M16 21V5C16 3.89543 15.1046 3 14 3H10C8.89543 3 8 3.89543 8 5V21" stroke="currentColor" stroke-width="2"/>
@@ -102,7 +102,7 @@
     </div>
 
     <!-- BOTON -->
-    <div class="btn-primary" (click)="continuar()">
+    <div class="btn-primary" tabindex="0" role="button" (click)="continuar()" (keydown.enter)="continuar()" (keydown.space)="continuar(); $event.preventDefault()">
       <span>{{ cargando ? 'Creando cuenta...' : 'Continuar como ' + (rol === 'CUSTOMER' ? 'Cliente' : 'Vendedor') }}</span>
     </div>
 

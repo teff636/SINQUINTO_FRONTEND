@@ -1,7 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { ClientNavigationService } from '../../../core/services/client-navigation.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { ClientQuickPanelComponent } from '../../../shared/client-quick-panel/client-quick-panel';
 
 export interface ServicioGuardado {
   serviceOfferId: number;
@@ -10,7 +14,6 @@ export interface ServicioGuardado {
   title: string;
   description: string;
   category: string;
-  
   price: number;
   estimatedDuration: number;
   vendedor?: string;
@@ -19,28 +22,36 @@ export interface ServicioGuardado {
 @Component({
   selector: 'app-guardados-cliente',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppTopbarComponent, ClientQuickPanelComponent],
   templateUrl: './guardados-cliente.html',
   styleUrls: ['./guardados-cliente.css']
 })
-export class GuardadosClienteComponent implements OnInit {
+export class GuardadosClienteComponent implements OnInit, OnDestroy {
   iniciales: string = 'CL';
   guardados: ServicioGuardado[] = [];
 
-  pendientesResena: number = 0;
   notifAbierta: boolean = false;
-  itemsNotif: any[] = [];
+
+  get pendientesResena(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
 
   constructor(
-    private router: Router,
-    private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly authService: AuthService,
+    private readonly notifService: NotificationUiService,
+    private readonly clientNav: ClientNavigationService
   ) {}
 
   ngOnInit(): void {
     this.cargarIniciales();
     this.cargarGuardados();
-    this.cargarNotificaciones();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   cargarIniciales(): void {
@@ -96,53 +107,23 @@ export class GuardadosClienteComponent implements OnInit {
     });
   }
 
-  irInicio(): void {
-    this.router.navigate(['/cliente']);
+  manejarNotificacion(n: Notificacion): void {
+    this.clientNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
   }
 
-  volverCliente(): void {
-    this.router.navigate(['/cliente']);
-  }
-
-  irGuardados(): void {
-    this.router.navigate(['/guardados-cliente']);
-  }
-
-  irEstado(): void {
-    this.router.navigate(['/estado-cliente']);
-  }
-
-  irHistorial(): void {
-    this.router.navigate(['/historial-cliente']);
-  }
-
-  irPerfil(): void {
-    this.router.navigate(['/perfil-cliente']);
-  }
-
-  private cargarNotificaciones(): void {
+  marcarTodasLeidas(): void {
     const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
-      next: (items: any[]) => {
-        this.itemsNotif = items;
-        this.pendientesResena = items.length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
+    if (usuario) this.notifService.marcarTodas(usuario.userId);
   }
 
-  marcarLeida(notif: any): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
-    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
-    this.pendientesResena = this.itemsNotif.length;
-    this.cdr.detectChanges();
-  }
+  irInicio(): void { this.router.navigate(['/cliente']); }
+  volverCliente(): void { this.router.navigate(['/cliente']); }
+  irGuardados(): void { this.router.navigate(['/guardados-cliente']); }
+  irEstado(): void { this.router.navigate(['/estado-cliente']); }
+  irHistorial(): void { this.router.navigate(['/historial-cliente']); }
+  irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
 
   toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
   cerrarNotif(): void { this.notifAbierta = false; }
-  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }
+

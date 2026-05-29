@@ -28,7 +28,7 @@
       </div>
 
       <!-- BOTON -->
-      <div class="login-new-acc" (click)="irRegistro()">
+      <div class="login-new-acc" tabindex="0" role="button" (click)="irRegistro()" (keydown.enter)="irRegistro()" (keydown.space)="irRegistro(); $event.preventDefault()">
         <span>¿No tienes cuenta? Regístrate →</span>
       </div>
 
@@ -116,7 +116,7 @@
       </div>
 
       <!-- BOTON -->
-      <div class="btn-primary" (click)="iniciarSesion()">
+      <div class="btn-primary" tabindex="0" role="button" (click)="iniciarSesion()" (keydown.enter)="iniciarSesion()" (keydown.space)="iniciarSesion(); $event.preventDefault()">
         <span>Iniciar Sesión</span>
       </div>
 

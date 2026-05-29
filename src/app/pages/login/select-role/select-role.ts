@@ -22,8 +22,8 @@ export class SelectRoleComponent implements OnInit {
   cargando: boolean = false;
 
   constructor(
-    private authService: AuthService,
-    private router: Router
+    private readonly authService: AuthService,
+    private readonly router: Router
   ) {}
 
   ngOnInit() {

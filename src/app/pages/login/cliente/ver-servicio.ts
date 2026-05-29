@@ -1,7 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { ClientNavigationService } from '../../../core/services/client-navigation.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -18,12 +21,13 @@ import { MatInputModule } from '@angular/material/input';
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    AppTopbarComponent
   ],
   templateUrl: './ver-servicio.html',
   styleUrls: ['./ver-servicio.css']
 })
-export class VerServicioComponent implements OnInit {
+export class VerServicioComponent implements OnInit, OnDestroy {
 
   servicio: any = null;
   iniciales: string = 'CL';
@@ -39,16 +43,19 @@ export class VerServicioComponent implements OnInit {
   cargandoResenas: boolean = true;
   promedioCalificaciones: number = 0;
 
-  pendientesResena: number = 0;
   notifAbierta: boolean = false;
-  itemsNotif: any[] = [];
+
+  get pendientesResena(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
 
   horas = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM', '4:00 PM'];
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService,
+    private readonly clientNav: ClientNavigationService
   ) {
     const nav = this.router.getCurrentNavigation();
     this.servicio = nav?.extras?.state?.['servicio'] || null;
@@ -61,7 +68,12 @@ export class VerServicioComponent implements OnInit {
     }
     this.cargarIniciales();
     this.cargarResenas();
-    this.cargarNotificaciones();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   private cargarIniciales(): void {
@@ -133,41 +145,27 @@ export class VerServicioComponent implements OnInit {
           this.router.navigate(['/estado-cliente']);
         }, 2000);
       },
-      error: (err) => {
-        console.log(err);
+      error: () => {
         this.mensajeError = 'Error al enviar la solicitud';
         this.cdr.detectChanges();
       }
     });
   }
 
+  manejarNotificacion(n: Notificacion): void {
+    this.clientNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
+  }
+
+  marcarTodasLeidas(): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.marcarTodas(usuario.userId);
+  }
+
   irInicio(): void { this.router.navigate(['/cliente']); }
   irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
   volver() { this.router.navigate(['/cliente']); }
 
-  private cargarNotificaciones(): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
-      next: (items: any[]) => {
-        this.itemsNotif = items;
-        this.pendientesResena = items.length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-  }
-
-  marcarLeida(notif: any): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
-    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
-    this.pendientesResena = this.itemsNotif.length;
-    this.cdr.detectChanges();
-  }
-
   toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
   cerrarNotif(): void { this.notifAbierta = false; }
-  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }
+

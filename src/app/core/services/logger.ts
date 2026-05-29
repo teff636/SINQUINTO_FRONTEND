@@ -16,7 +16,7 @@ export interface LogEntry {
 export class LoggerService {
   private logs: LogEntry[] = [];
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   log(level: string, category: string, message: string, detail?: string) {
     this.logs.push({ timestamp: new Date(), level, category, message, detail });

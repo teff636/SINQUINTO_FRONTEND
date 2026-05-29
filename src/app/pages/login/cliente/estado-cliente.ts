@@ -1,7 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { ClientNavigationService } from '../../../core/services/client-navigation.service';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { ClientQuickPanelComponent } from '../../../shared/client-quick-panel/client-quick-panel';
 
 export interface SolicitudCliente {
   appointmentId: number;
@@ -19,30 +23,38 @@ type FiltroEstado = 'TODAS' | 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
 @Component({
   selector: 'app-estado-cliente',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppTopbarComponent, ClientQuickPanelComponent],
   templateUrl: './estado-cliente.html',
   styleUrls: ['./estado-cliente.css']
 })
-export class EstadoClienteComponent implements OnInit {
+export class EstadoClienteComponent implements OnInit, OnDestroy {
   iniciales: string = 'CL';
   cargando: boolean = true;
   filtroActivo: FiltroEstado = 'TODAS';
   solicitudes: SolicitudCliente[] = [];
 
-  pendientesResena: number = 0;
   notifAbierta: boolean = false;
-  itemsNotif: any[] = [];
+
+  get pendientesResena(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
 
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService,
+    private readonly clientNav: ClientNavigationService
   ) {}
 
   ngOnInit(): void {
     this.cargarIniciales();
     this.cargarSolicitudes();
-    this.cargarNotificaciones();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId ?? usuario.id ?? usuario.clientId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   cargarIniciales(): void {
@@ -57,21 +69,40 @@ export class EstadoClienteComponent implements OnInit {
   cargarSolicitudes(): void {
     const usuario = this.authService.getUsuarioLocal();
     if (!usuario) { this.router.navigate(['/login']); return; }
-    this.authService.obtenerSolicitudesCliente(usuario.userId).subscribe({
-      next: (data) => { this.solicitudes = data; this.cargando = false; },
-      error: () => { this.cargando = false; }
+
+    const userId: number = usuario.userId ?? usuario.id ?? usuario.clientId;
+
+    if (!userId) {
+      this.cargando = false;
+      return;
+    }
+
+    this.authService.obtenerSolicitudesCliente(userId).subscribe({
+      next: (data) => {
+        this.solicitudes = (data || []).map((s: any) => ({
+          ...s,
+          status: (s.status || '').toUpperCase()
+        }));
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cargando = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
   get solicitudesFiltradas(): SolicitudCliente[] {
     const active = this.solicitudes.filter(s => s.status !== 'COMPLETED');
     if (this.filtroActivo === 'TODAS') return active;
+    if (this.filtroActivo === 'ACCEPTED') return active.filter(s => s.status === 'ACCEPTED' || s.status === 'CONFIRMED');
     return active.filter(s => s.status === this.filtroActivo);
   }
 
   get totalSolicitudes(): number { return this.solicitudes.length; }
   get pendientes(): number { return this.solicitudes.filter(s => s.status === 'PENDING').length; }
-  get aceptadas(): number { return this.solicitudes.filter(s => s.status === 'ACCEPTED').length; }
+  get aceptadas(): number { return this.solicitudes.filter(s => s.status === 'ACCEPTED' || s.status === 'CONFIRMED').length; }
   get finalizadas(): number { return this.solicitudes.filter(s => s.status === 'COMPLETED').length; }
 
   cambiarFiltro(filtro: FiltroEstado): void { this.filtroActivo = filtro; }
@@ -94,37 +125,24 @@ export class EstadoClienteComponent implements OnInit {
     return map[status] ?? '';
   }
 
+  manejarNotificacion(n: Notificacion): void {
+    this.clientNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
+  }
+
+  marcarTodasLeidas(): void {
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.marcarTodas(usuario.userId);
+  }
+
   irInicio(): void { this.router.navigate(['/cliente']); }
   volverCliente(): void { this.router.navigate(['/cliente']); }
   irGuardados(): void { this.router.navigate(['/guardados-cliente']); }
   irEstado(): void { this.router.navigate(['/estado-cliente']); }
   irHistorial(): void { this.router.navigate(['/historial-cliente']); }
   irPerfil(): void { this.router.navigate(['/perfil-cliente']); }
-  verSolicitud(solicitud: SolicitudCliente): void { console.log('Solicitud:', solicitud); }
-
-  private cargarNotificaciones(): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.cargarNotificacionesCliente(usuario.userId).subscribe({
-      next: (items: any[]) => {
-        this.itemsNotif = items;
-        this.pendientesResena = items.length;
-        this.cdr.detectChanges();
-      },
-      error: () => {}
-    });
-  }
-
-  marcarLeida(notif: any): void {
-    const usuario = this.authService.getUsuarioLocal();
-    if (!usuario) return;
-    this.authService.marcarNotificacionLeida(usuario.userId, notif.key);
-    this.itemsNotif = this.itemsNotif.filter(n => n.key !== notif.key);
-    this.pendientesResena = this.itemsNotif.length;
-    this.cdr.detectChanges();
-  }
+  verSolicitud(_solicitud: SolicitudCliente): void { this.router.navigate(['/estado-cliente']); }
 
   toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
   cerrarNotif(): void { this.notifAbierta = false; }
-  irAResena(): void { this.notifAbierta = false; this.router.navigate(['/historial-cliente']); }
 }
+

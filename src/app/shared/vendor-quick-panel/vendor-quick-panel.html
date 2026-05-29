@@ -1,0 +1,36 @@
+<aside class="quick-panel">
+  <p class="panel-title">Accesos rápidos</p>
+
+  <button class="quick-card" [class.primary]="activeSection === 'servicios'" type="button" (click)="goServicios.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">store</span>
+    </div>
+    <div>
+      <h3>Mis servicios</h3>
+      <p>Gestiona tus publicaciones</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="quick-card" [class.primary]="activeSection === 'solicitudes'" type="button" (click)="goSolicitudes.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">assignment</span>
+    </div>
+    <div>
+      <h3>Solicitudes</h3>
+      <p>Acepta o rechaza solicitudes</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="quick-card" [class.primary]="activeSection === 'historial'" type="button" (click)="goHistorial.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">history</span>
+    </div>
+    <div>
+      <h3>Historial</h3>
+      <p>Servicios completados</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+</aside>

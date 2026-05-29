@@ -1,0 +1,36 @@
+<aside class="quick-panel">
+  <p class="panel-title">Accesos rápidos</p>
+
+  <button class="quick-card" [class.primary]="activeSection === 'guardados'" type="button" (click)="goGuardados.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">bookmark</span>
+    </div>
+    <div>
+      <h3>Guardados</h3>
+      <p>Servicios que quieres ver más tarde</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="quick-card" [class.primary]="activeSection === 'estado'" type="button" (click)="goEstado.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">assignment</span>
+    </div>
+    <div>
+      <h3>Mis solicitudes</h3>
+      <p>Revisa el estado de tus solicitudes</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+
+  <button class="quick-card" [class.primary]="activeSection === 'historial'" type="button" (click)="goHistorial.emit()">
+    <div class="quick-icon">
+      <span class="material-icons-outlined">history</span>
+    </div>
+    <div>
+      <h3>Historial</h3>
+      <p>Servicios completados</p>
+    </div>
+    <span class="arrow">›</span>
+  </button>
+</aside>

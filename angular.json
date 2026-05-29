@@ -77,7 +77,28 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "coverage": true,
+            "coverageReporters": ["lcov", "text-summary"],
+            "exclude": [
+              "src/app/mapa/**",
+              "src/app/pages/logs/**"
+            ],
+            "coverageExclude": [
+              "src/main.ts",
+              "src/environments/**",
+              "src/app/app.routes.ts",
+              "src/app/app.config.ts",
+              "src/app/shared/client-topbar/**",
+              "src/app/shared/vendor-topbar/**",
+              "src/app/mapa/**",
+              "src/app/pages/logs/**",
+              "src/app/pages/login/select-role/**",
+              "src/app/pages/login/vendedor/publicar-servicio.ts"
+            ]
+          }
         }
       }
     }

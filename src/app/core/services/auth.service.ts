@@ -1,16 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
+export interface Notificacion {
+  id: number;
+  userId: number;
+  type: 'APPOINTMENT_REQUESTED' | 'APPOINTMENT_ACCEPTED' | 'APPOINTMENT_REJECTED' | 'APPOINTMENT_COMPLETED';
+  title: string;
+  message: string;
+  read: boolean;
+  appointmentId?: number;
+  serviceOfferId?: number;
+  createdAt?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:8080/api';
+  private apiUrl = `${environment.apiUrl}/api`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
 
   login(data: any): Observable<any> {
@@ -50,16 +62,16 @@ export class AuthService {
   actualizarServicio(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/service-offers/${id}`, data);
   }
-  
+
   getCitasPorServicio(serviceOfferId: number): Observable<any> {
-  return this.http.get(`${this.apiUrl}/appointments/service-offer/${serviceOfferId}`);
-}
+    return this.http.get(`${this.apiUrl}/appointments/service-offer/${serviceOfferId}`);
+  }
 
   eliminarServicio(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/service-offers/${id}`);
   }
 
- 
+
   getCategorias(): Observable<any> {
     return this.http.get(`${this.apiUrl}/categories`);
   }
@@ -143,47 +155,21 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  cargarNotificacionesCliente(userId: number): Observable<any[]> {
-    const leidasKey = `notif_leidas_${userId}`;
-    const leidas: string[] = JSON.parse(localStorage.getItem(leidasKey) || '[]');
+  // Notificaciones reales del backend
 
-    const activas$ = this.obtenerSolicitudesCliente(userId).pipe(catchError(() => of([])));
-    const historial$ = this.obtenerHistorialCliente(userId).pipe(catchError(() => of([])));
-
-    return forkJoin([activas$, historial$]).pipe(
-      map(([activas, historial]: [any[], any[]]) => {
-        const notifsActivas = (activas || [])
-          .filter((s: any) => s.status === 'ACCEPTED' || s.status === 'REJECTED')
-          .filter((s: any) => !leidas.includes(`${s.appointmentId}_${s.status}`))
-          .map((s: any) => ({
-            appointmentId: s.appointmentId,
-            serviceTitle: s.serviceTitle,
-            sellerName: s.sellerName,
-            tipo: s.status,
-            key: `${s.appointmentId}_${s.status}`
-          }));
-
-        const notifsResena = (historial || [])
-          .filter((s: any) => s.status === 'COMPLETED' && s.hasRating === false)
-          .map((s: any) => ({
-            appointmentId: s.appointmentId,
-            serviceTitle: s.serviceTitle,
-            sellerName: s.sellerName,
-            tipo: 'RESENA',
-            key: `${s.appointmentId}_RESENA`
-          }));
-
-        return [...notifsActivas, ...notifsResena];
-      })
-    );
+  getNotificacionesUsuario(userId: number): Observable<Notificacion[]> {
+    return this.http.get<Notificacion[]>(`${this.apiUrl}/notifications/user/${userId}`);
   }
 
-  marcarNotificacionLeida(userId: number, key: string): void {
-    const leidasKey = `notif_leidas_${userId}`;
-    const leidas: string[] = JSON.parse(localStorage.getItem(leidasKey) || '[]');
-    if (!leidas.includes(key)) {
-      leidas.push(key);
-      localStorage.setItem(leidasKey, JSON.stringify(leidas));
-    }
+  getNotificacionesNoLeidas(userId: number): Observable<Notificacion[]> {
+    return this.http.get<Notificacion[]>(`${this.apiUrl}/notifications/user/${userId}/unread`);
+  }
+
+  marcarNotificacionLeida(notificationId: number): Observable<Notificacion> {
+    return this.http.patch<Notificacion>(`${this.apiUrl}/notifications/${notificationId}/read`, {});
+  }
+
+  marcarTodasNotificacionesLeidas(userId: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/notifications/user/${userId}/read-all`, {});
   }
 }

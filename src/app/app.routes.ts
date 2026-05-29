@@ -23,7 +23,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register-usuario', component: RegisterUsuarioComponent },
   { path: 'select-role', component: SelectRoleComponent },
-  { path: 'logs', component: LogsComponent },
+  { path: 'logs', component: LogsComponent, canActivate: [authGuard] },
 
   {
     path: 'cliente',

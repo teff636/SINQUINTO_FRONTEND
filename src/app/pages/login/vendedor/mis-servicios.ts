@@ -1,8 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, Notificacion } from '../../../core/services/auth.service';
+import { NotificationUiService } from '../../../core/services/notification-ui.service';
+import { VendorNavigationService } from '../../../core/services/vendor-navigation.service';
 import { PublicarServicioComponent } from './publicar-servicio';
+import { AppTopbarComponent } from '../../../shared/app-topbar/app-topbar';
+import { VendorQuickPanelComponent } from '../../../shared/vendor-quick-panel/vendor-quick-panel';
 
 export interface Servicio {
   serviceOfferId: number;
@@ -16,24 +20,37 @@ export interface Servicio {
 @Component({
   selector: 'app-mis-servicios',
   standalone: true,
-  imports: [CommonModule, PublicarServicioComponent],
+  imports: [CommonModule, PublicarServicioComponent, AppTopbarComponent, VendorQuickPanelComponent],
   templateUrl: './mis-servicios.html',
   styleUrls: ['./mis-servicios.css']
 })
-export class MisServiciosComponent implements OnInit {
+export class MisServiciosComponent implements OnInit, OnDestroy {
 
   iniciales: string = '';
   servicios: Servicio[] = [];
   mostrarFormulario: boolean = false;
 
+  notifAbierta: boolean = false;
+
+  get notifCount(): number { return this.notifService.count; }
+  get itemsNotif(): Notificacion[] { return this.notifService.notificaciones; }
+
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private cdr: ChangeDetectorRef
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly notifService: NotificationUiService,
+    private readonly vendorNav: VendorNavigationService
   ) {}
 
   ngOnInit() {
     this.cargarServicios();
+    const usuario = this.authService.getUsuarioLocal();
+    if (usuario) this.notifService.iniciarPolling(usuario.userId);
+  }
+
+  ngOnDestroy(): void {
+    this.notifService.detenerPolling();
   }
 
   cargarServicios() {
@@ -51,7 +68,7 @@ export class MisServiciosComponent implements OnInit {
         this.servicios = [...data];
         this.cdr.detectChanges();
       },
-      error: (err) => console.log('Error:', err)
+      error: () => {}
     });
   }
 
@@ -62,13 +79,9 @@ export class MisServiciosComponent implements OnInit {
           this.servicios = this.servicios.filter(x => x.serviceOfferId !== s.serviceOfferId);
           this.cdr.detectChanges();
         },
-        error: (err) => console.log('Error:', err)
+        error: () => {}
       });
     }
-  }
-
-  editar(s: Servicio) {
-    console.log('Editar:', s);
   }
 
   abrirFormulario() {
@@ -93,19 +106,18 @@ export class MisServiciosComponent implements OnInit {
     return `#SERV-${String(s.serviceOfferId || 0).padStart(3, '0')}`;
   }
 
-  irInicio() {
-    this.router.navigate(['/vendedor']);
+  manejarNotificacion(n: Notificacion): void {
+    this.vendorNav.manejarNotificacion(n, () => { this.notifAbierta = false; });
   }
 
-  irSolicitudes() {
-    this.router.navigate(['/solicitudes-vendedor']);
-  }
+  marcarTodasLeidas(): void { this.vendorNav.marcarTodasLeidas(); }
 
-  irHistorial() {
-    this.router.navigate(['/historial-vendedor']);
-  }
+  irInicio() { this.vendorNav.irInicio(); }
+  irSolicitudes() { this.vendorNav.irSolicitudes(); }
+  irHistorial() { this.vendorNav.irHistorial(); }
+  irPerfil() { this.vendorNav.irPerfil(); }
 
-  irPerfil() {
-    this.router.navigate(['/perfil-vendedor']);
-  }
+  toggleNotif(): void { this.notifAbierta = !this.notifAbierta; }
+  cerrarNotif(): void { this.notifAbierta = false; }
 }
+

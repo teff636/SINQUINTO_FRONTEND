@@ -2,57 +2,19 @@
 
 <div class="cliente-page">
 
-  <header class="topbar">
-    <div class="brand">
-      Servi<span>Click</span>
-    </div>
-
-    <div class="top-actions">
-      <div class="notif-wrapper" (click)="$event.stopPropagation()">
-        <button class="icon-btn notif-btn" type="button" (click)="toggleNotif()" aria-label="Notificaciones">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6981 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="notif-badge" *ngIf="pendientesResena > 0">{{ pendientesResena }}</span>
-        </button>
-
-        <div class="notif-dropdown" *ngIf="notifAbierta">
-          <div class="notif-header">
-            <strong>Notificaciones</strong>
-            <button class="notif-close" type="button" (click)="cerrarNotif()">×</button>
-          </div>
-          <div *ngIf="itemsNotif.length === 0" class="notif-empty">
-            Sin notificaciones pendientes
-          </div>
-          <div class="notif-item" *ngFor="let n of itemsNotif">
-            <ng-container *ngIf="n.tipo === 'ACCEPTED'">
-              <p>El vendedor <strong>{{ n.sellerName || 'El vendedor' }}</strong> aceptó tu solicitud de <strong>{{ n.serviceTitle }}</strong>.</p>
-              <button class="notif-mark-btn" type="button" (click)="marcarLeida(n)">Marcar como leída</button>
-            </ng-container>
-            <ng-container *ngIf="n.tipo === 'REJECTED'">
-              <p>El vendedor <strong>{{ n.sellerName || 'El vendedor' }}</strong> rechazó tu solicitud de <strong>{{ n.serviceTitle }}</strong>.</p>
-              <button class="notif-mark-btn" type="button" (click)="marcarLeida(n)">Marcar como leída</button>
-            </ng-container>
-            <ng-container *ngIf="n.tipo === 'RESENA'">
-              <p>Tu servicio fue finalizado. ¿Cómo te pareció?</p>
-              <strong>{{ n.serviceTitle }}</strong>
-              <button class="notif-resena-btn" type="button" (click)="irAResena(); marcarLeida(n)">Añadir reseña</button>
-            </ng-container>
-          </div>
-        </div>
-      </div>
-
-      <button class="home-btn" type="button" (click)="irInicio()">
-        <span class="material-icons-outlined">home</span>
-        <span>Inicio</span>
-      </button>
-
-      <button class="avatar-btn" type="button" (click)="irPerfil()">
-        {{ iniciales || 'CL' }}
-      </button>
-    </div>
-  </header>
+  <app-topbar
+    variant="client"
+    [iniciales]="iniciales"
+    [badgeCount]="pendientesResena"
+    [notifAbierta]="notifAbierta"
+    [itemsNotif]="itemsNotif"
+    (toggleNotif)="toggleNotif()"
+    (cerrarNotif)="cerrarNotif()"
+    (marcarTodas)="marcarTodasLeidas()"
+    (manejarNotif)="manejarNotificacion($event)"
+    (goInicio)="irInicio()"
+    (goPerfil)="irPerfil()">
+  </app-topbar>
 
   <main class="dashboard-layout">
 
@@ -104,7 +66,7 @@
       </div>
 
       <div class="services-grid" *ngIf="serviciosFiltrados.length > 0">
-        <article class="service-card" *ngFor="let s of serviciosFiltrados" (click)="verServicio(s)">
+        <article class="service-card" *ngFor="let s of serviciosFiltrados" tabindex="0" role="button" (click)="verServicio(s)" (keydown.enter)="verServicio(s)" (keydown.space)="verServicio(s); $event.preventDefault()">
 
           <div class="service-image">
             <img *ngIf="s.photo" [src]="s.photo" [alt]="s.title">
@@ -174,43 +136,12 @@
 
     </section>
 
-    <aside class="quick-panel">
-      <p class="panel-title">Accesos rápidos</p>
-
-      <button class="quick-card" type="button" (click)="irGuardados()">
-        <div class="quick-icon">
-          <span class="material-icons-outlined">bookmark</span>
-        </div>
-        <div>
-          <h3>Guardados</h3>
-          <p>Servicios que quieres ver más tarde</p>
-        </div>
-        <span class="arrow">›</span>
-      </button>
-
-      <button class="quick-card" type="button" (click)="irEstado()">
-        <div class="quick-icon">
-          <span class="material-icons-outlined">assignment</span>
-        </div>
-        <div>
-          <h3>Mis solicitudes</h3>
-          <p>Revisa el estado de tus solicitudes</p>
-        </div>
-        <span class="arrow">›</span>
-      </button>
-
-      <button class="quick-card" type="button" (click)="irHistorial()">
-        <div class="quick-icon">
-          <span class="material-icons-outlined">history</span>
-        </div>
-        <div>
-          <h3>Historial</h3>
-          <p>Servicios completados</p>
-        </div>
-        <span class="arrow">›</span>
-      </button>
-
-    </aside>
+    <app-client-quick-panel
+      activeSection=""
+      (goGuardados)="irGuardados()"
+      (goEstado)="irEstado()"
+      (goHistorial)="irHistorial()">
+    </app-client-quick-panel>
 
   </main>
 
