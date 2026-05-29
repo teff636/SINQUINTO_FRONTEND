@@ -89,7 +89,7 @@
 
           <div class="request-left">
             <div class="seller-avatar">
-              {{ s.sellerName.substring(0, 2).toUpperCase() }}
+              {{ (s.sellerName || '??').substring(0, 2).toUpperCase() }}
             </div>
 
             <div class="timeline">

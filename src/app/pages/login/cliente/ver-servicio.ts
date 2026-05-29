@@ -106,6 +106,17 @@ export class VerServicioComponent implements OnInit, OnDestroy {
     return '★'.repeat(n) + '☆'.repeat(Math.max(0, 5 - n));
   }
 
+  private formatearFecha(fecha: Date, hora: string): string {
+    const [timePart, period] = hora.split(' ');
+    let [hours, minutes] = timePart.split(':').map(Number);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    const d = new Date(fecha);
+    d.setHours(hours, minutes || 0, 0, 0);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+  }
+
   seleccionarHora(hora: string) { this.horaSeleccionada = hora; }
 
   abrirModal() {
@@ -132,7 +143,7 @@ export class VerServicioComponent implements OnInit, OnDestroy {
     const cita = {
       userId: usuario.userId,
       serviceOfferId: this.servicio.serviceOfferId,
-      date: this.fechaSeleccionada?.toISOString(),
+      date: this.formatearFecha(this.fechaSeleccionada!, this.horaSeleccionada!),
       status: 'PENDING'
     };
 
